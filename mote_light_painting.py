@@ -99,6 +99,8 @@ class MyApplication:
         
         self.cheControlCamera = builder.get_object('cheControlCamera')
         
+        self.chePaintWhite = builder.get_object('chePaintWhite')
+        
         self.builder.tkvariables.__getitem__('intDuration').set(5)
         
         self.loadImage("images/Spectrum Vertical.png")
@@ -127,7 +129,8 @@ class MyApplication:
         for py in range(0, self.height):
           r, g, b = self.rgb_im.getpixel((x, py))
           colour = (r, g, b)
-          if colour != (0, 0, 0) and colour != (255, 255, 255):
+          iPaintWhite = self.builder.tkvariables.__getitem__('iPaintWhite').get()
+          if colour != (0, 0, 0) and (iPaintWhite or colour != (255, 255, 255)):
             channel, pixel= yToStick[py]
             mote.set_pixel(channel, pixel, r, g, b)
         mote.show()
@@ -135,7 +138,8 @@ class MyApplication:
     def drawColumn(self, px):
       for py in range(0, self.height):
         colour = self.rgb_im.getpixel((px, py))
-        if colour != (0, 0, 0) and colour != (255, 255, 255):
+        iPaintWhite = self.builder.tkvariables.__getitem__('iPaintWhite').get()
+        if colour != (0, 0, 0) and (iPaintWhite or colour != (255, 255, 255)):
           color = str(webcolors.rgb_to_hex(colour))
           self.canPreview.create_rectangle(px, (py*2), px+1, (py*2)+2, width=0, fill=color)
         

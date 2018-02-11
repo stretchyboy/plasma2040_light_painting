@@ -31,10 +31,27 @@ So far being built for :-
 * USB Battery Pack
 * Gaffer Tape (see [flow chart](https://c1.staticflickr.com/9/8160/7214525854_733237dd83_z.jpg))
 
-## To Run
+## Usage
 
 If you are going to attach a Camera by USB make sure you have a "LightPaintings" folder in the same folder as the mote_light_painting folder.
 
 ```bash
 sudo python mote_light_painting.py
 ```
+
+* Choose a file (there is a nice default spectrum if you are just testing)
+* The Graph shows your image as 64 pixels (the height of a full set of motes) over the draw time (so it will usually look stretched, don't worry its a graph) 
+* We often end up needing to ignore pure white pixels, if you need them painting check the 'Paint White ?' box. At the moment you need to reload the file.
+* Ticking 'Control Camera' will try to capture a photo from you USB / PTP camera via gphoto2 (there is no error checking here at the mo, so if it freezes start again).
+* "Delay Time" is self explanatory
+* "Draw Time" is how long it will take for your image to be drawn and will depend on the exposure time you are using
+* The "Draw" button :-
+  * Blanks the Graph
+  * Waits for any delay, drawing the progress on the Graph
+  * Starts the camera's shot if 'Control Camera' is selected 
+  * Starts changing the lights. 
+  * Move the lights across the field of view of the camera. The Graph will redraw to give you a clue how far along you are.
+  * If 'Control Camera' is selected the image should pop up in a photo viewer
+
+
+

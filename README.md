@@ -45,13 +45,15 @@ sudo python mote_light_painting.py
 * Ticking 'Control Camera' will try to capture a photo from you USB / PTP camera via gphoto2 (there is no error checking here at the mo, so if it freezes start again).
 * "Delay Time" is self explanatory
 * "Draw Time" is how long it will take for your image to be drawn and will depend on the exposure time you are using
+* "Repeats" set how many times the Delay/Draw cycle takes place. This should allow for nice light painted / stop motion effects
 * The "Draw" button :-
   * Blanks the Graph
   * Waits for any delay, drawing the progress on the Graph
   * Starts the camera's shot if 'Control Camera' is selected 
   * Starts changing the lights. 
   * Move the lights across the field of view of the camera. The Graph will redraw to give you a clue how far along you are.
-  * If 'Control Camera' is selected the image should pop up in a photo viewer
+  * The Draw process "Repeats" until it should end
+  * On the last repeat, if 'Control Camera' is selected the image should pop up in a photo viewer
 
 
 

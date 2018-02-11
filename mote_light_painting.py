@@ -49,13 +49,13 @@ simulate = False #True
 
 
 if not simulate :
-  from mote import Mote
-  mote = Mote()
-  
+  try:
+    from mote import Mote
+    mote = Mote()
+  except IOError:
+    simulate = True
+    
 timeSlices = 450
-
-
-
 
 yToStick =[]
 
@@ -184,8 +184,8 @@ class MyApplication:
       self.builder.tkvariables.__getitem__('messageText').set(message)
     
     def on_btnDraw_clicked(self, event=None):
-      self.canPreview.create_rectangle(0, 0, 450, 128, fill="#444")
-      self.countdown_id = self.canPreview.create_text(100, 400, fill="#AAA", text=".....")
+      self.canPreview.create_rectangle(0, 0, 450, 128, fill="#AAA")
+      self.countdown_id = self.canPreview.create_text(100, 400, fill="#F00", text=".....")
       
       delayTime = self.scaDelay.get()
       

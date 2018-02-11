@@ -15,8 +15,6 @@ import sys
 import time
 import functools
 
-
-
 import logging
 import os
 import subprocess
@@ -25,28 +23,7 @@ import sys
 import gphoto2 as gp
 CURRENT_DIR = os.path.abspath(os.path.dirname(__file__))
 
-def takePhoto():
-    logging.basicConfig(
-        format='%(levelname)s: %(name)s: %(message)s', level=logging.WARNING)
-    gp.check_result(gp.use_python_logging())
-    camera = gp.check_result(gp.gp_camera_new())
-    gp.check_result(gp.gp_camera_init(camera))
-    print('Capturing image')
-    file_path = gp.check_result(gp.gp_camera_capture(
-        camera, gp.GP_CAPTURE_IMAGE))
-    print('Camera file path: {0}/{1}'.format(file_path.folder, file_path.name))
-    target = os.path.join('~/tmp', file_path.name)
-    target = os.path.join(CURRENT_DIR,'..','LightPaintings', file_path.name)
-    print('Copying image to', target)
-    camera_file = gp.check_result(gp.gp_camera_file_get(
-            camera, file_path.folder, file_path.name, gp.GP_FILE_TYPE_NORMAL))
-    gp.check_result(gp.gp_file_save(camera_file, target))
-    subprocess.call(['xdg-open', target])
-    gp.check_result(gp.gp_camera_exit(camera))
-    return 0
-
 simulate = False #True
-
 
 if not simulate :
   try:
@@ -109,6 +86,28 @@ class MyApplication:
         self.loadImage("images/Spectrum Vertical.png")
         
         builder.connect_callbacks(self)
+        
+        
+    def takePhoto(self):
+        logging.basicConfig(
+            format='%(levelname)s: %(name)s: %(message)s', level=logging.WARNING)
+        gp.check_result(gp.use_python_logging())
+        camera = gp.check_result(gp.gp_camera_new())
+        gp.check_result(gp.gp_camera_init(camera))
+        print('Capturing image')
+        file_path = gp.check_result(gp.gp_camera_capture(
+            camera, gp.GP_CAPTURE_IMAGE))
+        print('Camera file path: {0}/{1}'.format(file_path.folder, file_path.name))
+        target = os.path.join('~/tmp', file_path.name)
+        target = os.path.join(CURRENT_DIR,'..','LightPaintings', file_path.name)
+        print('Copying image to', target)
+        camera_file = gp.check_result(gp.gp_camera_file_get(
+                camera, file_path.folder, file_path.name, gp.GP_FILE_TYPE_NORMAL))
+        gp.check_result(gp.gp_file_save(camera_file, target))
+        if(self.completeRepeats == self.intRepeats):
+          subprocess.call(['xdg-open', target])
+        gp.check_result(gp.gp_camera_exit(camera))
+        return 0
 
     def quit(self, event=None):
         self.mainwindow.quit()
@@ -172,7 +171,7 @@ class MyApplication:
     def show(self):
       self.canPreview.create_rectangle(0, 0, graphWidth, 128, fill="#000")
       if self.builder.tkvariables.__getitem__('iControlCamera').get() == 1:
-        thread.start_new_thread ( takePhoto , ())
+        thread.start_new_thread ( self.takePhoto , ())
         #self.startPhoto()
       message = "Show "+str(self.completeRepeats+1)+"/"+str(self.intRepeats)+" started"
       self.showMessage(message)

@@ -55,7 +55,8 @@ if not simulate :
   except IOError:
     simulate = True
     
-timeSlices = 450
+timeSlices = 310
+graphWidth = timeSlices
 
 yToStick =[]
 
@@ -82,7 +83,7 @@ class MyApplication:
         self.builder = builder = pygubu.Builder()
 
         #2: Load an ui file
-        builder.add_from_file(os.path.join(CURRENT_DIR, 'main.ui'))
+        builder.add_from_file(os.path.join(CURRENT_DIR, 'main_repeats.ui'))
         
         #3: Create the toplevel widget.
         self.mainwindow = builder.get_object('mainwindow')
@@ -96,6 +97,8 @@ class MyApplication:
         self.scaDelay = builder.get_object('scaDelay')
         
         self.scaDuration = builder.get_object('scaDuration')
+        
+        self.scaRepeats = builder.get_object('scaRepeats')
         
         self.cheControlCamera = builder.get_object('cheControlCamera')
         
@@ -144,32 +147,34 @@ class MyApplication:
           self.canPreview.create_rectangle(px, (py*2), px+1, (py*2)+2, width=0, fill=color)
         
     def drawPreview(self):
-      self.canPreview.create_rectangle(0, 0, 450, 128, fill="black")
+      self.canPreview.create_rectangle(0, 0, graphWidth, 128, fill="black")
       for x in range(0, self.width):
         self.drawColumn(x)
       #print ("Preview complete")
       
     def drawCountdown(self, i, delayTime):
       secs = delayTime - i
-      self.canPreview.create_rectangle(0, 0, i * 450/delayTime, 128, fill="#000")
-      message = "Starts in "+str(secs)
+      self.canPreview.create_rectangle(0, 0, i * graphWidth/delayTime, 128, fill="#000")
+      message = "Show "+str(self.completeRepeats+1)+"/"+str(self.intRepeats)+" starts in "+str(secs)
       self.canPreview.itemconfigure(self.countdown_id, text=message)
       self.showMessage(message)
       
     def onShowEnd(self):
-      self.showMessage("Show Complete")
+      message = "Show "+str(self.completeRepeats+1)+"/"+str(self.intRepeats)+" Complete"
+      self.showMessage(message)
       if not simulate :
         mote.clear()
         mote.show()
-      
+      self.completeRepeats += 1
+      if(self.completeRepeats < self.intRepeats):
+        self.singleShow()
         
-      
     def show(self):
-      self.canPreview.create_rectangle(0, 0, 450, 128, fill="#000")
+      self.canPreview.create_rectangle(0, 0, graphWidth, 128, fill="#000")
       if self.builder.tkvariables.__getitem__('iControlCamera').get() == 1:
         thread.start_new_thread ( takePhoto , ())
         #self.startPhoto()
-      message = "Show started"
+      message = "Show "+str(self.completeRepeats+1)+"/"+str(self.intRepeats)+" started"
       self.showMessage(message)
       duration = float(self.scaDuration.get())
       stepTime = int(1000 * duration / float(timeSlices))
@@ -184,8 +189,14 @@ class MyApplication:
       self.builder.tkvariables.__getitem__('messageText').set(message)
     
     def on_btnDraw_clicked(self, event=None):
-      self.canPreview.create_rectangle(0, 0, 450, 128, fill="#AAA")
-      self.countdown_id = self.canPreview.create_text(100, 400, fill="#F00", text=".....")
+      self.intRepeats = int(self.builder.tkvariables.__getitem__('intRepeats').get())
+      self.completeRepeats = 0
+      self.singleShow()
+      
+      
+    def singleShow(self):
+      self.canPreview.create_rectangle(0, 0, graphWidth, 128, fill="#AAA")
+      self.countdown_id = self.canPreview.create_text(100, graphWidth -100, fill="#F00", text=".....")
       
       delayTime = self.scaDelay.get()
       

@@ -1,11 +1,15 @@
 # mote_light_painting
 Using pimoroni motes to light paint bitmap images.
 
+![Squigy Thingy](demos/Squigy Thingy.JPG)
+
+![Light Arch](demos/Light Arch.jpg)
+
 Inspired by 
 
 * my son who has CP and is making a great job of light painting even without the tools I said I'd build for him
 * the [Pixel Stick](http://thepixelstick.com/) which is around $350
-*  the fact I have a full [Mote](https://shop.pimoroni.com/products/mote) kit that [Pimoroni](https://shop.pimoroni.com/) very kindly gave me for my 40th birthday and Motes are "Sticks of Pixels"
+* the fact I have a full [Mote](https://shop.pimoroni.com/products/mote) kit that [Pimoroni](https://shop.pimoroni.com/) very kindly gave me for my 40th birthday and Motes are "Sticks of Pixels"
 
 ## Requirements
 

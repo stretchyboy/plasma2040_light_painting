@@ -1,15 +1,17 @@
 # mote_light_painting
 Using pimoroni motes to light paint bitmap images.
 
-![Squigy Thingy](demos/Squigy Thingy.JPG)
-
-![Light Arch](demos/Light Arch.jpg)
+![Squigy Thingy](demos/Squigy%20Thingy.JPG)
 
 Inspired by 
 
 * my son who has CP and is making a great job of light painting even without the tools I said I'd build for him
 * the [Pixel Stick](http://thepixelstick.com/) which is around $350
 * the fact I have a full [Mote](https://shop.pimoroni.com/products/mote) kit that [Pimoroni](https://shop.pimoroni.com/) very kindly gave me for my 40th birthday and Motes are "Sticks of Pixels"
+
+
+![Light Arch](demos/Light%20Arch.jpg)
+
 
 ## Requirements
 
@@ -28,12 +30,15 @@ So far being built for :-
 * Mote https://shop.pimoroni.com/products/mote
 * Canon EOS 1200D (optional) - Should work with most EOS models and most cameras gphoto2 can control. Nothing clever just triggering shutter release with the settings you have set on the camera.
 
+
+![Flag and Flats](demos/Flag%20and%20Flats.jpg)
+
 ### Other Hardware
 
 * Wooden Stick
 * Screws to attach Mote sticks to the stick
 * USB Battery Pack
-* Gaffer Tape (see [flow chart](https://c1.staticflickr.com/9/8160/7214525854_733237dd83_z.jpg))
+* Gaffer Tape (see ![flow chart](https://c1.staticflickr.com/9/8160/7214525854_733237dd83_z.jpg))
 
 ## Usage
 

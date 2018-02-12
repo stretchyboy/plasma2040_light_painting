@@ -49,8 +49,8 @@ def addStick(channel, up=True, length=16, gammacorrect=True):  #from top
 
 addStick(1)
 addStick(2)
-addStick(3, False)
-addStick(3, False)
+addStick(3)
+addStick(4)
 
 
 
@@ -128,19 +128,19 @@ class MyApplication:
         
     def showColumn(self, x):
       if not simulate :
+        iPaintWhite = self.builder.tkvariables.__getitem__('iPaintWhite').get()
         for py in range(0, self.height):
           r, g, b = self.rgb_im.getpixel((x, py))
           colour = (r, g, b)
-          iPaintWhite = self.builder.tkvariables.__getitem__('iPaintWhite').get()
           if colour != (0, 0, 0) and (iPaintWhite or colour != (255, 255, 255)):
             channel, pixel= yToStick[py]
             mote.set_pixel(channel, pixel, r, g, b)
         mote.show()
 
     def drawColumn(self, px):
+      iPaintWhite = self.builder.tkvariables.__getitem__('iPaintWhite').get()
       for py in range(0, self.height):
         colour = self.rgb_im.getpixel((px, py))
-        iPaintWhite = self.builder.tkvariables.__getitem__('iPaintWhite').get()
         if colour != (0, 0, 0) and (iPaintWhite or colour != (255, 255, 255)):
           color = str(webcolors.rgb_to_hex(colour))
           self.canPreview.create_rectangle(px, (py*2), px+1, (py*2)+2, width=0, fill=color)

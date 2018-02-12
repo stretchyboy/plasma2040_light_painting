@@ -48,6 +48,8 @@ If you are going to attach a Camera by USB make sure you have a "LightPaintings"
 sudo python mote_light_painting.py
 ```
 
+![Screenshot](Screenshot.png)
+
 * Choose a file (there is a nice default spectrum if you are just testing)
 * The Graph shows your image as 64 pixels (the height of a full set of motes) over the draw time (so it will usually look stretched, don't worry its a graph) 
 * We often end up needing to ignore pure white pixels, if you need them painting check the 'Paint White ?' box. At the moment you need to reload the file.

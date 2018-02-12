@@ -18,6 +18,7 @@ Inspired by
 ### Software
 
 ```bash
+sudo aptitude install libgphoto2-dev
 sudo pip install webcolors pillow pygubu mote gphoto2
 ```
 

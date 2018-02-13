@@ -52,7 +52,7 @@ addStick(2)
 addStick(3)
 addStick(4)
 
-
+cameraLag = 1
 
 class MyApplication:
     def __init__(self):
@@ -167,12 +167,13 @@ class MyApplication:
       self.completeRepeats += 1
       if(self.completeRepeats < self.intRepeats):
         self.singleShow()
-        
-    def show(self):
-      self.canPreview.create_rectangle(0, 0, graphWidth, 128, fill="#000")
+    
+    def startPhoto(self):
       if self.builder.tkvariables.__getitem__('iControlCamera').get() == 1:
         thread.start_new_thread ( self.takePhoto , ())
-        #self.startPhoto()
+    
+    def show(self):
+      self.canPreview.create_rectangle(0, 0, graphWidth, 128, fill="#000")
       message = "Show "+str(self.completeRepeats+1)+"/"+str(self.intRepeats)+" started"
       self.showMessage(message)
       duration = float(self.scaDuration.get())
@@ -202,7 +203,11 @@ class MyApplication:
       for i in range(1, delayTime ):
         self.mainwindow.after(i*1000, functools.partial(self.drawCountdown, i, delayTime))
       
-      self.mainwindow.after(delayTime*1000, self.show)
+      self.mainwindow.after(delayTime*1000, self.startPhoto)
+      lag = 0
+      if self.builder.tkvariables.__getitem__('iControlCamera').get() == 1:
+        lag = cameraLag
+      self.mainwindow.after((delayTime + lag) *1000, self.show)
       
     def run(self):
         self.mainwindow.mainloop()

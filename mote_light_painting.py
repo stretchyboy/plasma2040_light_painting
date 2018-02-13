@@ -33,6 +33,8 @@ if not simulate :
     simulate = True
     
 timeSlices = 310
+motePixelInSceenPixels = 1
+
 graphWidth = timeSlices
 
 yToStick =[]
@@ -114,7 +116,7 @@ class MyApplication:
 
     def loadImage(self, filename):
         self.im = Image.open(filename)
-        self.rgb_im = self.im.convert('RGB').resize((timeSlices, 64))
+        self.rgb_im = self.im.convert('RGB').resize((timeSlices, len(yToStick)))
         self.width, self.height = self.rgb_im.size
         self.drawPreview()
         
@@ -143,17 +145,17 @@ class MyApplication:
         colour = self.rgb_im.getpixel((px, py))
         if colour != (0, 0, 0) and (iPaintWhite or colour != (255, 255, 255)):
           color = str(webcolors.rgb_to_hex(colour))
-          self.canPreview.create_rectangle(px, (py*2), px+1, (py*2)+2, width=0, fill=color)
+          self.canPreview.create_rectangle(px, (py*motePixelInSceenPixels), px+1, (py*motePixelInSceenPixels)+motePixelInSceenPixels, width=0, fill=color)
         
     def drawPreview(self):
-      self.canPreview.create_rectangle(0, 0, graphWidth, 128, fill="black")
+      self.canPreview.create_rectangle(0, 0, graphWidth, (len(yToStick) * motePixelInSceenPixels), fill="black")
       for x in range(0, self.width):
         self.drawColumn(x)
       #print ("Preview complete")
       
     def drawCountdown(self, i, delayTime):
       secs = delayTime - i
-      self.canPreview.create_rectangle(0, 0, i * graphWidth/delayTime, 128, fill="#000")
+      self.canPreview.create_rectangle(0, 0, i * graphWidth/delayTime, (len(yToStick) * motePixelInSceenPixels), fill="#000")
       message = "Show "+str(self.completeRepeats+1)+"/"+str(self.intRepeats)+" starts in "+str(secs)
       self.canPreview.itemconfigure(self.countdown_id, text=message)
       self.showMessage(message)
@@ -173,7 +175,7 @@ class MyApplication:
         thread.start_new_thread ( self.takePhoto , ())
     
     def show(self):
-      self.canPreview.create_rectangle(0, 0, graphWidth, 128, fill="#000")
+      self.canPreview.create_rectangle(0, 0, graphWidth, (len(yToStick) * motePixelInSceenPixels), fill="#000")
       message = "Show "+str(self.completeRepeats+1)+"/"+str(self.intRepeats)+" started"
       self.showMessage(message)
       duration = float(self.scaDuration.get())
@@ -195,7 +197,7 @@ class MyApplication:
       
       
     def singleShow(self):
-      self.canPreview.create_rectangle(0, 0, graphWidth, 128, fill="#AAA")
+      self.canPreview.create_rectangle(0, 0, graphWidth, (len(yToStick) * motePixelInSceenPixels), fill="#AAA")
       self.countdown_id = self.canPreview.create_text(100, graphWidth -100, fill="#F00", text=".....")
       
       delayTime = self.scaDelay.get()

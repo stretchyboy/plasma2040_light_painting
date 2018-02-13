@@ -1,12 +1,8 @@
 <?xml version='1.0' encoding='utf-8'?>
 <interface>
   <object class="tk.Toplevel" id="mainwindow">
-    <property name="height">460</property>
-    <property name="maxsize">320|460</property>
-    <property name="minsize">320|460</property>
     <property name="resizable">none</property>
     <property name="title" translatable="yes">Mote Light Painting</property>
-    <property name="width">320</property>
     <child>
       <object class="tk.Label" id="labFilePath">
         <property name="text" translatable="yes">Choose a file:</property>
@@ -35,7 +31,7 @@
     <child>
       <object class="tk.Canvas" id="canPreview">
         <property name="background">#00FF00</property>
-        <property name="height">128</property>
+        <property name="height">64</property>
         <property name="width">310</property>
         <layout>
           <property name="column">0</property>

@@ -1,0 +1,215 @@
+<?xml version='1.0' encoding='utf-8'?>
+<interface>
+  <object class="tk.Toplevel" id="mainwindow">
+    <property name="overrideredirect">True</property>
+    <property name="resizable">none</property>
+    <property name="title" translatable="yes">Mote Light Painting</property>
+    <child>
+      <object class="tk.Canvas" id="canPreview">
+        <property name="background">#00FF00</property>
+        <property name="height">64</property>
+        <property name="width">310</property>
+        <layout>
+          <property name="column">0</property>
+          <property name="columnspan">3</property>
+          <property name="propagate">True</property>
+          <property name="row">1</property>
+          <property name="sticky">ew</property>
+        </layout>
+      </object>
+    </child>
+    <child>
+      <object class="ttk.Notebook" id="Notebook_1">
+        <layout>
+          <property name="column">0</property>
+          <property name="columnspan">3</property>
+          <property name="propagate">True</property>
+          <property name="row">12</property>
+          <property name="sticky">ew</property>
+        </layout>
+        <child>
+          <object class="ttk.Notebook.Tab" id="tabFile">
+            <property name="sticky">ew</property>
+            <property name="text" translatable="yes">File</property>
+            <child>
+              <object class="pygubu.builder.widgets.pathchooserinput" id="pathFilePath">
+                <property name="path">images/</property>
+                <property name="type">file</property>
+                <bind add="" handler="on_path_changed" sequence="&lt;&lt;PathChooserPathChanged&gt;&gt;" />
+                <layout>
+                  <property name="column">0</property>
+                  <property name="columnspan">2</property>
+                  <property name="propagate">True</property>
+                  <property name="row">13</property>
+                  <property name="sticky">w</property>
+                </layout>
+              </object>
+            </child>
+          </object>
+        </child>
+        <child>
+          <object class="ttk.Notebook.Tab" id="tabTime">
+            <property name="text" translatable="yes">Time</property>
+            <child>
+              <object class="ttk.Frame" id="Frame_3">
+                <property name="height">200</property>
+                <property name="width">200</property>
+                <layout>
+                  <property name="column">0</property>
+                  <property name="propagate">True</property>
+                  <property name="row">0</property>
+                  <property name="sticky">ew</property>
+                </layout>
+                <child>
+                  <object class="tk.Scale" id="scaDuration">
+                    <property name="from_">1</property>
+                    <property name="label" translatable="yes">Draw Time:secs</property>
+                    <property name="length">100</property>
+                    <property name="orient">horizontal</property>
+                    <property name="showvalue">true</property>
+                    <property name="to">20</property>
+                    <property name="variable">string:intDuration</property>
+                    <layout>
+                      <property name="column">0</property>
+                      <property name="columnspan">2</property>
+                      <property name="propagate">True</property>
+                      <property name="row">3</property>
+                      <property name="sticky">ew</property>
+                    </layout>
+                  </object>
+                </child>
+                <child>
+                  <object class="tk.Scale" id="scaDelay">
+                    <property name="from_">0</property>
+                    <property name="label" translatable="yes">Delay:secs</property>
+                    <property name="length">100</property>
+                    <property name="orient">horizontal</property>
+                    <property name="showvalue">true</property>
+                    <property name="to">20</property>
+                    <layout>
+                      <property name="column">3</property>
+                      <property name="columnspan">2</property>
+                      <property name="propagate">True</property>
+                      <property name="row">3</property>
+                      <property name="sticky">ew</property>
+                    </layout>
+                  </object>
+                </child>
+              </object>
+            </child>
+          </object>
+        </child>
+        <child>
+          <object class="ttk.Notebook.Tab" id="tabRepeats">
+            <property name="text" translatable="yes">Repeats</property>
+          </object>
+        </child>
+        <child>
+          <object class="ttk.Notebook.Tab" id="Tab_3">
+            <property name="text" translatable="yes">Options</property>
+            <child>
+              <object class="ttk.Frame" id="Frame_1">
+                <property name="height">200</property>
+                <property name="width">200</property>
+                <layout>
+                  <property name="column">0</property>
+                  <property name="propagate">True</property>
+                  <property name="row">0</property>
+                  <property name="sticky">ew</property>
+                </layout>
+                <child>
+                  <object class="tk.Checkbutton" id="chePaintWhite">
+                    <property name="offvalue">0</property>
+                    <property name="onvalue">1</property>
+                    <property name="text" translatable="yes">Paint White</property>
+                    <property name="variable">int:iPaintWhite</property>
+                    <bind add="True" handler="on_path_changed" sequence="&lt;1&gt;" />
+                    <layout>
+                      <property name="column">0</property>
+                      <property name="columnspan">2</property>
+                      <property name="propagate">True</property>
+                      <property name="row">2</property>
+                      <property name="sticky">w</property>
+                    </layout>
+                  </object>
+                </child>
+                <child>
+                  <object class="tk.Scale" id="scaRepeats">
+                    <property name="from_">1</property>
+                    <property name="label" translatable="yes">Repeats</property>
+                    <property name="length">100</property>
+                    <property name="orient">horizontal</property>
+                    <property name="to">20</property>
+                    <property name="variable">string:intRepeats</property>
+                    <layout>
+                      <property name="column">2</property>
+                      <property name="propagate">True</property>
+                      <property name="row">2</property>
+                    </layout>
+                  </object>
+                </child>
+              </object>
+            </child>
+          </object>
+        </child>
+        <child>
+          <object class="ttk.Notebook.Tab" id="tabRun">
+            <property name="text" translatable="yes">Run</property>
+            <child>
+              <object class="ttk.Frame" id="Frame_2">
+                <layout>
+                  <property name="column">0</property>
+                  <property name="propagate">True</property>
+                  <property name="row">0</property>
+                </layout>
+                <child>
+                  <object class="tk.Checkbutton" id="cheControlCamera">
+                    <property name="offvalue">0</property>
+                    <property name="onvalue">1</property>
+                    <property name="text" translatable="yes">Camera</property>
+                    <property name="variable">int:iControlCamera</property>
+                    <layout>
+                      <property name="column">0</property>
+                      <property name="columnspan">2</property>
+                      <property name="propagate">True</property>
+                      <property name="row">1</property>
+                      <property name="sticky">w</property>
+                    </layout>
+                  </object>
+                </child>
+                <child>
+                  <object class="tk.Message" id="msgMessage">
+                    <property name="text" translatable="yes">Messages appear here.</property>
+                    <property name="textvariable">string:messageText</property>
+                    <property name="width">310</property>
+                    <layout>
+                      <property name="column">0</property>
+                      <property name="columnspan">2</property>
+                      <property name="propagate">True</property>
+                      <property name="row">2</property>
+                      <property name="sticky">ew</property>
+                    </layout>
+                  </object>
+                </child>
+                <child>
+                  <object class="tk.Button" id="btnDraw">
+                    <property name="text" translatable="yes">Draw</property>
+                    <bind add="" handler="on_btnDraw_clicked" sequence="&lt;1&gt;" />
+                    <layout>
+                      <property name="column">2</property>
+                      <property name="columnspan">2</property>
+                      <property name="propagate">True</property>
+                      <property name="row">1</property>
+                      <property name="rowspan">2</property>
+                      <property name="sticky">nsew</property>
+                    </layout>
+                  </object>
+                </child>
+              </object>
+            </child>
+          </object>
+        </child>
+      </object>
+    </child>
+  </object>
+</interface>

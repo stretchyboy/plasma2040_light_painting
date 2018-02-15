@@ -62,7 +62,7 @@ class MyApplication:
         self.builder = builder = pygubu.Builder()
 
         #2: Load an ui file
-        builder.add_from_file(os.path.join(CURRENT_DIR, 'main_repeats.ui'))
+        builder.add_from_file(os.path.join(CURRENT_DIR, 'main_tabs.ui'))
         
         #3: Create the toplevel widget.
         self.mainwindow = builder.get_object('mainwindow')

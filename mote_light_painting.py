@@ -2,12 +2,18 @@
 from __future__ import print_function
 
 # File: toplevelminimal.py
-import thread
+try:
+	import thread
+except:
+	from threading import Thread
+	
 import os
+
 try:
     import tkinter as tk
 except:
     import Tkinter as tk
+    
 import pygubu
 from PIL import Image #PILLOW
 import webcolors
@@ -62,7 +68,10 @@ class MyApplication:
         self.builder = builder = pygubu.Builder()
 
         #2: Load an ui file
-        builder.add_from_file(os.path.join(CURRENT_DIR, 'main_tabs.ui'))
+        if(screen_width > 500):
+            builder.add_from_file(os.path.join(CURRENT_DIR, 'main_repeats.ui'))
+        else:
+            builder.add_from_file(os.path.join(CURRENT_DIR, 'main_tabs.ui'))
         
         #3: Create the toplevel widget.
         self.mainwindow = builder.get_object('mainwindow')

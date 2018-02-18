@@ -85,7 +85,7 @@ class MyApplication:
         else:
             builder.add_from_file(os.path.join(CURRENT_DIR, 'main_repeats2.ui'))
 	        #builder.add_from_file(os.path.join(CURRENT_DIR, 'main_ttk.ui'))
-            self.doQuick = True
+            #self.doQuick = True
 
         #3: Create the toplevel widget.
         self.mainwindow = builder.get_object('mainwindow')
@@ -214,16 +214,19 @@ class MyApplication:
         '''
 
     def doColumn(self):
-        if self.doQuick:
-            self.drawColumn(self.currentColumn)
-        else:
-            self.quickColumn(self.currentColumn)
-
-        self.showColumn(self.currentColumn)
+        thisColumn = self.currentColumn
         self.currentColumn -= 1
         if self.currentColumn  > 0:
             self.mainwindow.after(self.stepTime, self.doColumn)
+            
+        if self.doQuick:
+            self.quickColumn(thisColumn)
         else:
+            self.drawColumn(thisColumn)
+
+        self.showColumn(thisColumn)
+        
+        if self.currentColumn  == 0:
             self.onShowEnd()
 
 

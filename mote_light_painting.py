@@ -6,7 +6,7 @@ try:
 	import thread
 except:
 	from threading import Thread
-	
+
 import os
 
 try:
@@ -14,10 +14,10 @@ try:
     import tkinter.ttk as ttk
 except:
     import Tkinter as tk
-    
 
-#style = ttk.Style()
-#style.configure("MLP.TLabel", foreground="red", background="white")
+#s=ttk.Style()
+#s.theme_use('clam')
+
 
 import pygubu
 from PIL import Image #PILLOW
@@ -44,8 +44,8 @@ if not simulate :
         mote = Mote()
     except IOError:
         simulate = True
-    
-timeSlices = 310
+
+timeSlices = 320
 motePixelInSceenPixels = 1
 
 graphWidth = timeSlices
@@ -73,8 +73,8 @@ class MyApplication:
     def __init__(self):
         #1: Create a builder
         self.builder = builder = pygubu.Builder()
-        
-        
+
+
         screen_width = gtk.gdk.screen_width()
         screen_height = gtk.gdk.screen_height()
 
@@ -82,34 +82,35 @@ class MyApplication:
         if(screen_width > 500):
             builder.add_from_file(os.path.join(CURRENT_DIR, 'main_repeats.ui'))
         else:
-            builder.add_from_file(os.path.join(CURRENT_DIR, 'main_tabs.ui'))
-        
+            builder.add_from_file(os.path.join(CURRENT_DIR, 'main_repeats2.ui'))
+	        #builder.add_from_file(os.path.join(CURRENT_DIR, 'main_ttk.ui'))
+
         #3: Create the toplevel widget.
         self.mainwindow = builder.get_object('mainwindow')
-        
-        self.canPreview = builder.get_object('canPreview')        
-        
+
+        self.canPreview = builder.get_object('canPreview')
+
         self.pathFilePath = builder.get_object('pathFilePath')
-        
+
         self.msgMessage = builder.get_object('msgMessage')
-        
+
         self.scaDelay = builder.get_object('scaDelay')
-        
+
         self.scaDuration = builder.get_object('scaDuration')
-        
+
         self.scaRepeats = builder.get_object('scaRepeats')
-        
+
         self.cheControlCamera = builder.get_object('cheControlCamera')
-        
+
         self.chePaintWhite = builder.get_object('chePaintWhite')
-        
+
         self.builder.tkvariables.__getitem__('intDuration').set(5)
-        
+
         self.loadImage("images/Spectrum Vertical.png")
-        
+
         builder.connect_callbacks(self)
-        
-        
+
+
     def takePhoto(self):
         logging.basicConfig(
             format='%(levelname)s: %(name)s: %(message)s', level=logging.WARNING)
@@ -139,15 +140,15 @@ class MyApplication:
         self.rgb_im = self.im.convert('RGB').resize((timeSlices, len(yToStick)))
         self.width, self.height = self.rgb_im.size
         self.drawPreview()
-        
+
     def on_path_changed(self, event=None):
         # Get the path choosed by the user
         filename = self.pathFilePath.cget('path')
         message = "Opened "+filename
         self.showMessage(message)
         self.loadImage(filename)
-        
-        
+
+
     def showColumn(self, x):
         if not simulate :
             iPaintWhite = self.builder.tkvariables.__getitem__('iPaintWhite').get()
@@ -166,13 +167,13 @@ class MyApplication:
             if colour != (0, 0, 0) and (iPaintWhite or colour != (255, 255, 255)):
                 color = str(webcolors.rgb_to_hex(colour))
                 self.canPreview.create_rectangle( px, (py * motePixelInSceenPixels), px+1, (py * motePixelInSceenPixels) + motePixelInSceenPixels, width=0, fill=color)
-        
+
     def drawPreview(self):
         self.canPreview.create_rectangle(0, 0, graphWidth, (len(yToStick) * motePixelInSceenPixels), fill="black")
         for x in range(0, self.width):
             self.drawColumn(x)
         #print ("Preview complete")
-      
+
     def onShowEnd(self):
         message = "Show "+str(self.completeRepeats + 1) + "/"+str(self.intRepeats)+" Complete"
         self.showMessage(message)
@@ -182,11 +183,11 @@ class MyApplication:
         self.completeRepeats += 1
         if(self.completeRepeats < self.intRepeats):
             self.singleShow()
-    
+
     def startPhoto(self):
         if self.builder.tkvariables.__getitem__('iControlCamera').get() == 1:
             thread.start_new_thread ( self.takePhoto , ())
-    
+
     def show(self):
         self.canPreview.create_rectangle(0, 0, graphWidth, (len(yToStick) * motePixelInSceenPixels), fill="#000")
         message = "Show "+str(self.completeRepeats+1)+"/"+str(self.intRepeats)+" started"
@@ -203,7 +204,7 @@ class MyApplication:
         self.mainwindow.after(self.stepTime*x, functools.partial(self.showColumn, x))
         self.mainwindow.after(self.scaDuration.get() * 1000, self.onShowEnd)
         '''
-        
+
     def doColumn(self):
         self.drawColumn(self.currentColumn)
         self.showColumn(self.currentColumn)
@@ -212,23 +213,23 @@ class MyApplication:
             self.mainwindow.after(self.stepTime, self.doColumn)
         else:
             self.onShowEnd()
-        
-    
+
+
     def showMessage(self, message):
         self.builder.tkvariables.__getitem__('messageText').set(message)
-    
+
     def on_btnDraw_clicked(self, event=None):
         self.intRepeats = int(self.builder.tkvariables.__getitem__('intRepeats').get())
         self.completeRepeats = 0
         self.singleShow()
-      
+
     def drawCountdown(self):
         delayTime = self.scaDelay.get()
         i = delayTime - self.delayRemaining
         width = graphWidth
         if delayTime > 0:
             width = i * graphWidth/delayTime
-          
+
         self.canPreview.create_rectangle(0, 0, width, (len(yToStick) * motePixelInSceenPixels), fill="#000")
         message = "Show "+str(self.completeRepeats+1)+"/"+str(self.intRepeats)+" starts in "+str(self.delayRemaining)
         self.canPreview.itemconfigure(self.countdown_id, text=message)
@@ -237,8 +238,8 @@ class MyApplication:
         self.delayRemaining -= 1
         if self.delayRemaining > 0:
             self.mainwindow.after(1000, self.drawCountdown)
-        
-      
+
+
     def singleShow(self):
         self.canPreview.create_rectangle(0, 0, graphWidth, (len(yToStick) * motePixelInSceenPixels), fill="#AAA")
         self.countdown_id = self.canPreview.create_text(100, graphWidth -100, fill="#F00", text=".....")
@@ -251,16 +252,16 @@ class MyApplication:
         '''
         delayTime = self.scaDelay.get()
         self.mainwindow.after(delayTime*1000, self.startPhoto)
-        
+
         lag = 0
         if self.builder.tkvariables.__getitem__('iControlCamera').get() == 1:
             lag = cameraLag
-            
+
         self.mainwindow.after((delayTime + lag) *1000, self.show)
-      
+
     def run(self):
         self.mainwindow.mainloop()
-        
+
 if __name__ == '__main__':
     app = MyApplication()
     app.run()

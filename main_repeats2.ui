@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
 <interface>
   <object class="tk.Toplevel" id="mainwindow">
-    <property name="overrideredirect">False</property>
+    <property name="overrideredirect">True</property>
     <property name="resizable">none</property>
     <property name="title" translatable="yes">Mote Light Painting</property>
     <child>

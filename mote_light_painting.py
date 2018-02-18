@@ -73,6 +73,7 @@ class MyApplication:
     def __init__(self):
         #1: Create a builder
         self.builder = builder = pygubu.Builder()
+        self.doQuick = False
 
 
         screen_width = gtk.gdk.screen_width()
@@ -84,6 +85,7 @@ class MyApplication:
         else:
             builder.add_from_file(os.path.join(CURRENT_DIR, 'main_repeats2.ui'))
 	        #builder.add_from_file(os.path.join(CURRENT_DIR, 'main_ttk.ui'))
+            self.doQuick = True
 
         #3: Create the toplevel widget.
         self.mainwindow = builder.get_object('mainwindow')
@@ -160,6 +162,12 @@ class MyApplication:
                     mote.set_pixel(channel, pixel, r, g, b)
             mote.show()
 
+	def quickColumn(self, px):
+		r, g, b = self.rgb_im.getpixel((32, py))
+		colour = (r, g, b)
+		self.canPreview.create_rectangle( px, 0, px+1, (len(yToStick) * motePixelInSceenPixels), width=0, fill=color)
+
+
     def drawColumn(self, px):
         iPaintWhite = self.builder.tkvariables.__getitem__('iPaintWhite').get()
         for py in range(0, len(yToStick)):
@@ -206,7 +214,11 @@ class MyApplication:
         '''
 
     def doColumn(self):
-        self.drawColumn(self.currentColumn)
+        if self.doQuick:
+            self.drawColumn(self.currentColumn)
+        else:
+            self.quickColumn(self.currentColumn)
+
         self.showColumn(self.currentColumn)
         self.currentColumn -= 1
         if self.currentColumn  > 0:

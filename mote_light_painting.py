@@ -11,9 +11,14 @@ import os
 
 try:
     import tkinter as tk
+    import tkinter.ttk as ttk
 except:
     import Tkinter as tk
     
+
+#style = ttk.Style()
+#style.configure("MLP.TLabel", foreground="red", background="white")
+
 import pygubu
 from PIL import Image #PILLOW
 import webcolors

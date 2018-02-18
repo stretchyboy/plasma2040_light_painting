@@ -67,7 +67,7 @@
         <property name="to">20</property>
         <property name="variable">string:intDuration</property>
         <layout>
-          <property name="column">1</property>
+          <property name="column">2</property>
           <property name="propagate">True</property>
           <property name="row">3</property>
         </layout>
@@ -78,9 +78,10 @@
         <property name="text" translatable="yes">Draw</property>
         <bind add="" handler="on_btnDraw_clicked" sequence="&lt;1&gt;" />
         <layout>
-          <property name="column">2</property>
+          <property name="column">0</property>
+          <property name="columnspan">3</property>
           <property name="propagate">True</property>
-          <property name="row">2</property>
+          <property name="row">10</property>
           <property name="sticky">ew</property>
         </layout>
       </object>
@@ -121,7 +122,7 @@
         <property name="variable">int:iPaintWhite</property>
         <bind add="True" handler="on_path_changed" sequence="&lt;1&gt;" />
         <layout>
-          <property name="column">1</property>
+          <property name="column">2</property>
           <property name="propagate">True</property>
           <property name="row">2</property>
           <property name="sticky">w</property>
@@ -140,6 +141,7 @@
           <property name="column">2</property>
           <property name="propagate">True</property>
           <property name="row">3</property>
+          <property name="sticky">ew</property>
         </layout>
       </object>
     </child>

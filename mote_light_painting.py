@@ -85,7 +85,7 @@ class MyApplication:
         else:
             builder.add_from_file(os.path.join(CURRENT_DIR, 'main_repeats2.ui'))
 	        #builder.add_from_file(os.path.join(CURRENT_DIR, 'main_ttk.ui'))
-            #self.doQuick = True
+            self.doQuick = True
 
         #3: Create the toplevel widget.
         self.mainwindow = builder.get_object('mainwindow')
@@ -161,11 +161,12 @@ class MyApplication:
                     channel, pixel= yToStick[py]
                     mote.set_pixel(channel, pixel, r, g, b)
             mote.show()
-
-	def quickColumn(self, px):
-		r, g, b = self.rgb_im.getpixel((32, py))
-		colour = (r, g, b)
-		self.canPreview.create_rectangle( px, 0, px+1, (len(yToStick) * motePixelInSceenPixels), width=0, fill=color)
+    
+    def quickColumn(self, px):
+        r, g, b = self.rgb_im.getpixel((px, 1))
+        colour = (r, g, b)
+        color = str(webcolors.rgb_to_hex(colour))
+        self.canPreview.create_rectangle( px, 0, px+1, (len(yToStick) * motePixelInSceenPixels), width=0, fill=color)
 
 
     def drawColumn(self, px):
@@ -219,7 +220,7 @@ class MyApplication:
         if self.currentColumn  > 0:
             self.mainwindow.after(self.stepTime, self.doColumn)
             
-        if self.doQuick:
+        if self.doQuick == True:
             self.quickColumn(thisColumn)
         else:
             self.drawColumn(thisColumn)

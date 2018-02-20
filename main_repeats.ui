@@ -21,8 +21,8 @@
         <property name="type">file</property>
         <bind add="" handler="on_path_changed" sequence="&lt;&lt;PathChooserPathChanged&gt;&gt;" />
         <layout>
-          <property name="column">0</property>
-          <property name="columnspan">3</property>
+          <property name="column">1</property>
+          <property name="columnspan">2</property>
           <property name="propagate">True</property>
           <property name="row">0</property>
           <property name="sticky">ew</property>
@@ -32,7 +32,7 @@
     <child>
       <object class="tk.Canvas" id="canPreview">
         <property name="background">#00FF00</property>
-        <property name="height">64</property>
+        <property name="height">128</property>
         <property name="width">320</property>
         <layout>
           <property name="column">0</property>
@@ -47,13 +47,13 @@
       <object class="tk.Scale" id="scaDelay">
         <property name="from_">0</property>
         <property name="label" translatable="yes">Delay:secs</property>
-        <property name="length">150</property>
+        <property name="length">320</property>
         <property name="orient">horizontal</property>
         <property name="showvalue">true</property>
         <property name="to">20</property>
         <layout>
           <property name="column">0</property>
-          <property name="columnspan">2</property>
+          <property name="columnspan">3</property>
           <property name="propagate">True</property>
           <property name="row">3</property>
           <property name="sticky">ew</property>
@@ -64,14 +64,15 @@
       <object class="tk.Scale" id="scaDuration">
         <property name="from_">1</property>
         <property name="label" translatable="yes">Draw Time:secs</property>
-        <property name="length">150</property>
+        <property name="length">320</property>
         <property name="orient">horizontal</property>
         <property name="to">20</property>
         <property name="variable">string:intDuration</property>
         <layout>
-          <property name="column">2</property>
+          <property name="column">0</property>
+          <property name="columnspan">3</property>
           <property name="propagate">True</property>
-          <property name="row">3</property>
+          <property name="row">4</property>
           <property name="sticky">ew</property>
         </layout>
       </object>
@@ -82,7 +83,7 @@
         <bind add="" handler="on_btnDraw_clicked" sequence="&lt;1&gt;" />
         <layout>
           <property name="column">0</property>
-          <property name="columnspan">2</property>
+          <property name="columnspan">3</property>
           <property name="propagate">True</property>
           <property name="row">10</property>
           <property name="sticky">nsew</property>
@@ -121,11 +122,11 @@
       <object class="tk.Checkbutton" id="chePaintWhite">
         <property name="offvalue">0</property>
         <property name="onvalue">1</property>
-        <property name="text" translatable="yes">White</property>
+        <property name="text" translatable="yes">Paint White</property>
         <property name="variable">int:iPaintWhite</property>
         <bind add="True" handler="on_path_changed" sequence="&lt;1&gt;" />
         <layout>
-          <property name="column">1</property>
+          <property name="column">2</property>
           <property name="propagate">True</property>
           <property name="row">8</property>
           <property name="sticky">w</property>
@@ -141,10 +142,10 @@
         <property name="to">20</property>
         <property name="variable">string:intRepeats</property>
         <layout>
-          <property name="column">2</property>
+          <property name="column">0</property>
+          <property name="columnspan">3</property>
           <property name="propagate">True</property>
-          <property name="row">8</property>
-          <property name="rowspan">3</property>
+          <property name="row">5</property>
           <property name="sticky">ew</property>
         </layout>
       </object>

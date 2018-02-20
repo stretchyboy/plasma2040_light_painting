@@ -45,11 +45,6 @@ if not simulate :
     except IOError:
         simulate = True
 
-timeSlices = 320
-motePixelInSceenPixels = 1
-
-graphWidth = timeSlices
-
 yToStick =[]
 
 def addStick(channel, up=True, length=16, gammacorrect=True):  #from top
@@ -67,21 +62,28 @@ addStick(2)
 addStick(3)
 addStick(4)
 
-cameraLag = 3
+
 
 class MyApplication:
     def __init__(self):
         #1: Create a builder
         self.builder = builder = pygubu.Builder()
         self.doQuick = False
+        self.timeSlices = 320
+        self.motePixelInSceenPixels = 1
+        self.graphWidth = self.timeSlices
+        self.cameraLag = 3
 
 
         screen_width = gtk.gdk.screen_width()
         screen_height = gtk.gdk.screen_height()
+        
+
 
         #2: Load an ui file
         if(screen_width > 500):
             builder.add_from_file(os.path.join(CURRENT_DIR, 'main_repeats.ui'))
+            self.motePixelInSceenPixels = 2
         else:
             builder.add_from_file(os.path.join(CURRENT_DIR, 'main_repeats2.ui'))
 	        #builder.add_from_file(os.path.join(CURRENT_DIR, 'main_ttk.ui'))
@@ -139,7 +141,7 @@ class MyApplication:
 
     def loadImage(self, filename):
         self.im = Image.open(filename)
-        self.rgb_im = self.im.convert('RGB').resize((timeSlices, len(yToStick)))
+        self.rgb_im = self.im.convert('RGB').resize((self.timeSlices, len(yToStick)))
         self.width, self.height = self.rgb_im.size
         self.drawPreview()
 
@@ -166,7 +168,7 @@ class MyApplication:
         r, g, b = self.rgb_im.getpixel((px, 1))
         colour = (r, g, b)
         color = str(webcolors.rgb_to_hex(colour))
-        self.canPreview.create_rectangle( px, 0, px+1, (len(yToStick) * motePixelInSceenPixels), width=0, fill=color)
+        self.canPreview.create_rectangle( px, 0, px+1, (len(yToStick) * self.motePixelInSceenPixels), width=0, fill=color)
 
 
     def drawColumn(self, px):
@@ -175,10 +177,10 @@ class MyApplication:
             colour = self.rgb_im.getpixel((px, py))
             if colour != (0, 0, 0) and (iPaintWhite or colour != (255, 255, 255)):
                 color = str(webcolors.rgb_to_hex(colour))
-                self.canPreview.create_rectangle( px, (py * motePixelInSceenPixels), px+1, (py * motePixelInSceenPixels) + motePixelInSceenPixels, width=0, fill=color)
+                self.canPreview.create_rectangle( px, (py * self.motePixelInSceenPixels), px+1, (py * self.motePixelInSceenPixels) + self.motePixelInSceenPixels, width=0, fill=color)
 
     def drawPreview(self):
-        self.canPreview.create_rectangle(0, 0, graphWidth, (len(yToStick) * motePixelInSceenPixels), fill="black")
+        self.canPreview.create_rectangle(0, 0, self.graphWidth, (len(yToStick) * self.motePixelInSceenPixels), fill="black")
         for x in range(0, self.width):
             self.drawColumn(x)
         #print ("Preview complete")
@@ -198,11 +200,11 @@ class MyApplication:
             thread.start_new_thread ( self.takePhoto , ())
 
     def show(self):
-        self.canPreview.create_rectangle(0, 0, graphWidth, (len(yToStick) * motePixelInSceenPixels), fill="#000")
+        self.canPreview.create_rectangle(0, 0, self.graphWidth, (len(yToStick) * self.motePixelInSceenPixels), fill="#000")
         message = "Show "+str(self.completeRepeats+1)+"/"+str(self.intRepeats)+" started"
         self.showMessage(message)
         duration = float(self.scaDuration.get())
-        self.stepTime = int(1000 * duration / float(timeSlices))
+        self.stepTime = int(1000 * duration / float(self.timeSlices))
         #print("self.stepTime", self.stepTime)
 
         self.currentColumn = self.width - 1
@@ -242,11 +244,11 @@ class MyApplication:
     def drawCountdown(self):
         delayTime = self.scaDelay.get()
         i = delayTime - self.delayRemaining
-        width = graphWidth
+        width = self.graphWidth
         if delayTime > 0:
-            width = i * graphWidth/delayTime
+            width = i * self.graphWidth/delayTime
 
-        self.canPreview.create_rectangle(0, 0, width, (len(yToStick) * motePixelInSceenPixels), fill="#000")
+        self.canPreview.create_rectangle(0, 0, width, (len(yToStick) * self.motePixelInSceenPixels), fill="#000")
         message = "Show "+str(self.completeRepeats+1)+"/"+str(self.intRepeats)+" starts in "+str(self.delayRemaining)
         self.canPreview.itemconfigure(self.countdown_id, text=message)
         self.showMessage(message)
@@ -257,8 +259,8 @@ class MyApplication:
 
 
     def singleShow(self):
-        self.canPreview.create_rectangle(0, 0, graphWidth, (len(yToStick) * motePixelInSceenPixels), fill="#AAA")
-        self.countdown_id = self.canPreview.create_text(100, graphWidth -100, fill="#F00", text=".....")
+        self.canPreview.create_rectangle(0, 0, self.graphWidth, (len(yToStick) * self.motePixelInSceenPixels), fill="#AAA")
+        self.countdown_id = self.canPreview.create_text(100, self.graphWidth -100, fill="#F00", text=".....")
 
         self.delayRemaining = self.scaDelay.get()
         self.drawCountdown()
@@ -271,7 +273,7 @@ class MyApplication:
 
         lag = 0
         if self.builder.tkvariables.__getitem__('iControlCamera').get() == 1:
-            lag = cameraLag
+            lag = self.cameraLag
 
         self.mainwindow.after((delayTime + lag) *1000, self.show)
 

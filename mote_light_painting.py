@@ -67,7 +67,7 @@ addStick(2)
 addStick(3)
 addStick(4)
 
-cameraLag = 1
+cameraLag = 3
 
 class MyApplication:
     def __init__(self):

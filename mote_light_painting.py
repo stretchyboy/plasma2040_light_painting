@@ -36,7 +36,7 @@ import gtk
 import gphoto2 as gp
 CURRENT_DIR = os.path.abspath(os.path.dirname(__file__))
 
-simulate = True
+simulate = False
 
 if not simulate :
     try:
@@ -114,6 +114,7 @@ class MyApplication:
         self.loadImage("images/Spectrum Vertical.png")
 
         builder.connect_callbacks(self)
+        
 
 
     def takePhoto(self):
@@ -202,7 +203,10 @@ class MyApplication:
 
     def show(self):
         self.canPreview.create_rectangle(0, 0, self.graphWidth, (len(yToStick) * self.motePixelInSceenPixels), fill="#000")
-        message = "Show "+str(self.completeRepeats+1)+"/"+str(self.intRepeats)+" started"
+        if simulate:
+            message = "Simulating"
+        else:
+            message = "Show "+str(self.completeRepeats+1)+"/"+str(self.intRepeats)+" started"
         self.showMessage(message)
         duration = float(self.scaDuration.get())
         self.stepTime = int(1000 * duration / float(self.timeSlices))

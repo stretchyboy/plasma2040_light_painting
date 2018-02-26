@@ -31,6 +31,7 @@ import os
 import subprocess
 import sys
 import gtk
+import re
 
 
 import gphoto2 as gp
@@ -50,6 +51,7 @@ class MyApplication:
         self.cameraLag = 3
         self.currentColumn = 0
         self.simulate = False
+        self.animate = False
 
         screen_width = gtk.gdk.screen_width()
         screen_height = gtk.gdk.screen_height()
@@ -154,9 +156,14 @@ class MyApplication:
         self.drawPreview()
 
     def on_path_changed(self, event=None):
+        self.animate = False
         # Get the path choosed by the user
         filename = self.pathFilePath.cget('path')
+        
         message = "Opened "+filename
+        if re.match(".*[0-9]+\.[a-zA-Z][a-zA-Z][a-zA-Z][a-zA-Z]?", filename):
+            self.animate = True
+            message += " Animation Found"
         self.showMessage(message)
         self.loadImage(filename)
 
@@ -168,9 +175,12 @@ class MyApplication:
                 for py in range(0, self.height):
                     r, g, b = self.rgb_im.getpixel((x, py))
                     colour = (r, g, b)
+                    channel, pixel= self.yToStick[py]
                     if colour != (0, 0, 0) and (iPaintWhite or colour != (255, 255, 255)):
-                        channel, pixel= self.yToStick[py]
                         self.mote.set_pixel(channel, pixel, r, g, b)
+                    else:
+                        self.mote.set_pixel(channel, pixel, 0, 0, 0)
+                        
                 self.mote.show()
             except IOError:
                 self.simulate = True
@@ -199,7 +209,7 @@ class MyApplication:
         #print ("Preview complete")
 
     def onShowEnd(self):
-        message = "Show "+str(self.completeRepeats + 1) + "/"+str(self.intRepeats)+" Complete in "+str(time.clock() - self.startTime)+"s"
+        message = "Show "+str(self.completeRepeats + 1) + "/"+str(self.intRepeats)+" Complete in "+str(time.time() - self.startTime)+"s"
         self.showMessage(message)
         if not self.simulate :
             self.mote.clear()
@@ -225,13 +235,13 @@ class MyApplication:
         #print("self.stepTime", self.stepTime)
 
         self.currentColumn = self.width-1
-        self.startTime = time.clock() 
-        self.targetTime = time.clock() + self.stepTimeS
+        self.startTime = time.time() 
+        self.targetTime = time.time() + self.stepTimeS
         self.doColumn()
 
     def doColumn(self):
         thisColumn = self.currentColumn
-        if time.clock() < self.targetTime:
+        if time.time() < self.targetTime:
             self.timer = self.mainwindow.after(1, self.doColumn)
             return
         

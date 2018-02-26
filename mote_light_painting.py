@@ -36,31 +36,6 @@ import gtk
 import gphoto2 as gp
 CURRENT_DIR = os.path.abspath(os.path.dirname(__file__))
 
-simulate = False
-
-if not simulate :
-    try:
-        from mote import Mote
-        mote = Mote()
-    except IOError:
-        simulate = True
-
-yToStick =[]
-
-def addStick(channel, up=True, length=16, gammacorrect=True):  #from top
-    if not simulate :
-        mote.configure_channel(channel, length, gammacorrect)
-    for i in range(length):
-        if up:
-            offset = length -1 - i
-        else:
-            offset = i
-        yToStick.append((channel, offset))
-
-addStick(1)
-addStick(2)
-addStick(3)
-addStick(4)
 
 
 
@@ -73,8 +48,8 @@ class MyApplication:
         self.motePixelInSceenPixels = 1
         self.graphWidth = self.timeSlices
         self.cameraLag = 3
-	self.currentColumn =0
-
+        self.currentColumn = 0
+        self.simulate = False
 
         screen_width = gtk.gdk.screen_width()
         screen_height = gtk.gdk.screen_height()
@@ -110,11 +85,42 @@ class MyApplication:
         self.chePaintWhite = builder.get_object('chePaintWhite')
 
         self.builder.tkvariables.__getitem__('intDuration').set(5)
-
+        self.connectToMote()
         self.loadImage("images/Spectrum Vertical.png")
 
         builder.connect_callbacks(self)
         
+        
+
+        
+
+    def addStick(self, channel, up=True, length=16, gammacorrect=True):  #from top
+        if not self.simulate :
+            self.mote.configure_channel(channel, length, gammacorrect)
+        for i in range(length):
+            if up:
+                offset = length - 1 - i
+            else:
+                offset = i
+            self.yToStick.append((channel, offset))
+
+    def connectToMote(self):
+        self.showMessage("Connecting")
+        try:
+            from mote import Mote
+            self.mote = Mote()
+            self.simulate = False
+            self.showMessage("Connected")
+        except IOError:
+            self.simulate = True
+            self.showMessage("Simulating")
+            
+        self.yToStick = []
+        self.addStick(1)
+        self.addStick(2)
+        self.addStick(3)
+        self.addStick(4)
+    
 
 
     def takePhoto(self):
@@ -143,7 +149,7 @@ class MyApplication:
 
     def loadImage(self, filename):
         self.im = Image.open(filename)
-        self.rgb_im = self.im.convert('RGB').resize((self.timeSlices, len(yToStick)))
+        self.rgb_im = self.im.convert('RGB').resize((self.timeSlices, len(self.yToStick)))
         self.width, self.height = self.rgb_im.size
         self.drawPreview()
 
@@ -156,33 +162,38 @@ class MyApplication:
 
 
     def showColumn(self, x):
-        if not simulate :
+        if not self.simulate :
             iPaintWhite = self.builder.tkvariables.__getitem__('iPaintWhite').get()
-            for py in range(0, self.height):
-                r, g, b = self.rgb_im.getpixel((x, py))
-                colour = (r, g, b)
-                if colour != (0, 0, 0) and (iPaintWhite or colour != (255, 255, 255)):
-                    channel, pixel= yToStick[py]
-                    mote.set_pixel(channel, pixel, r, g, b)
-            mote.show()
+            try:
+                for py in range(0, self.height):
+                    r, g, b = self.rgb_im.getpixel((x, py))
+                    colour = (r, g, b)
+                    if colour != (0, 0, 0) and (iPaintWhite or colour != (255, 255, 255)):
+                        channel, pixel= self.yToStick[py]
+                        self.mote.set_pixel(channel, pixel, r, g, b)
+                self.mote.show()
+            except IOError:
+                self.simulate = True
+                self.showMessage("Connection Failed. Simulating")
+                
     
     def quickColumn(self, px):
         r, g, b = self.rgb_im.getpixel((px, 1))
         colour = (r, g, b)
         color = str(webcolors.rgb_to_hex(colour))
-        self.canPreview.create_rectangle( px, 0, px+1, (len(yToStick) * self.motePixelInSceenPixels), width=0, fill=color)
+        self.canPreview.create_rectangle( px, 0, px+1, (len(self.yToStick) * self.motePixelInSceenPixels), width=0, fill=color)
 
 
     def drawColumn(self, px):
         iPaintWhite = self.builder.tkvariables.__getitem__('iPaintWhite').get()
-        for py in range(0, len(yToStick)):
+        for py in range(0, len(self.yToStick)):
             colour = self.rgb_im.getpixel((px, py))
             if colour != (0, 0, 0) and (iPaintWhite or colour != (255, 255, 255)):
                 color = str(webcolors.rgb_to_hex(colour))
                 self.canPreview.create_rectangle( px, (py * self.motePixelInSceenPixels), px+1, (py * self.motePixelInSceenPixels) + self.motePixelInSceenPixels, width=0, fill=color)
 
     def drawPreview(self):
-        self.canPreview.create_rectangle(0, 0, self.graphWidth, (len(yToStick) * self.motePixelInSceenPixels), fill="black")
+        self.canPreview.create_rectangle(0, 0, self.graphWidth, (len(self.yToStick) * self.motePixelInSceenPixels), fill="black")
         for x in range(0, self.width):
             self.drawColumn(x)
         #print ("Preview complete")
@@ -190,9 +201,9 @@ class MyApplication:
     def onShowEnd(self):
         message = "Show "+str(self.completeRepeats + 1) + "/"+str(self.intRepeats)+" Complete in "+str(time.clock() - self.startTime)+"s"
         self.showMessage(message)
-        if not simulate :
-            mote.clear()
-            mote.show()
+        if not self.simulate :
+            self.mote.clear()
+            self.mote.show()
         self.completeRepeats += 1
         if(self.completeRepeats < self.intRepeats):
             self.singleShow()
@@ -202,8 +213,8 @@ class MyApplication:
             thread.start_new_thread ( self.takePhoto , ())
 
     def show(self):
-        self.canPreview.create_rectangle(0, 0, self.graphWidth, (len(yToStick) * self.motePixelInSceenPixels), fill="#000")
-        if simulate:
+        self.canPreview.create_rectangle(0, 0, self.graphWidth, (len(self.yToStick) * self.motePixelInSceenPixels), fill="#000")
+        if self.simulate:
             message = "Simulating"
         else:
             message = "Show "+str(self.completeRepeats+1)+"/"+str(self.intRepeats)+" started"
@@ -224,7 +235,7 @@ class MyApplication:
             self.timer = self.mainwindow.after(1, self.doColumn)
             return
         
-	#print ("doColumn thisColumn", thisColumn, "self.stepTime", self.stepTime)
+	    #print ("doColumn thisColumn", thisColumn, "self.stepTime", self.stepTime)
         self.currentColumn -= 1
         if self.currentColumn  > 0:
             self.targetTime += self.stepTimeS
@@ -244,9 +255,9 @@ class MyApplication:
         self.builder.tkvariables.__getitem__('messageText').set(message)
 
     def on_btnDraw_clicked(self, event=None):
-	if self.currentColumn  > 0:
-		self.showMessage("Cannot start now, still running")
-		return False
+        if self.currentColumn  > 0:
+            self.showMessage("Cannot start now, still running")
+            return False
         self.intRepeats = int(self.builder.tkvariables.__getitem__('intRepeats').get())
         self.completeRepeats = 0
         self.singleShow()
@@ -258,7 +269,7 @@ class MyApplication:
         if delayTime > 0:
             width = i * self.graphWidth/delayTime
 
-        self.canPreview.create_rectangle(0, 0, width, (len(yToStick) * self.motePixelInSceenPixels), fill="#000")
+        self.canPreview.create_rectangle(0, 0, width, (len(self.yToStick) * self.motePixelInSceenPixels), fill="#000")
         message = "Show "+str(self.completeRepeats+1)+"/"+str(self.intRepeats)+" starts in "+str(self.delayRemaining)
         self.canPreview.itemconfigure(self.countdown_id, text=message)
         self.showMessage(message)
@@ -269,15 +280,15 @@ class MyApplication:
 
 
     def singleShow(self):
-        self.canPreview.create_rectangle(0, 0, self.graphWidth, (len(yToStick) * self.motePixelInSceenPixels), fill="#AAA")
+        if self.simulate:
+            self.connectToMote()
+            
+        self.canPreview.create_rectangle(0, 0, self.graphWidth, (len(self.yToStick) * self.motePixelInSceenPixels), fill="#AAA")
         self.countdown_id = self.canPreview.create_text(100, self.graphWidth -100, fill="#F00", text=".....")
 
         self.delayRemaining = self.scaDelay.get()
         self.drawCountdown()
 
-        '''for i in range(1, delayTime ):
-        self.mainwindow.after(i*1000, functools.partial(self.drawCountdown, i, delayTime))
-        '''
         delayTime = self.scaDelay.get()
         self.mainwindow.after(delayTime*1000, self.startPhoto)
 

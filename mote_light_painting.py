@@ -36,7 +36,7 @@ import gtk
 import gphoto2 as gp
 CURRENT_DIR = os.path.abspath(os.path.dirname(__file__))
 
-simulate = False #True
+simulate = True
 
 if not simulate :
     try:
@@ -73,6 +73,7 @@ class MyApplication:
         self.motePixelInSceenPixels = 1
         self.graphWidth = self.timeSlices
         self.cameraLag = 3
+	self.currentColumn =0
 
 
         screen_width = gtk.gdk.screen_width()
@@ -186,7 +187,7 @@ class MyApplication:
         #print ("Preview complete")
 
     def onShowEnd(self):
-        message = "Show "+str(self.completeRepeats + 1) + "/"+str(self.intRepeats)+" Complete"
+        message = "Show "+str(self.completeRepeats + 1) + "/"+str(self.intRepeats)+" Complete in "+str(time.clock() - self.startTime)+"s"
         self.showMessage(message)
         if not simulate :
             mote.clear()
@@ -205,22 +206,25 @@ class MyApplication:
         self.showMessage(message)
         duration = float(self.scaDuration.get())
         self.stepTime = int(1000 * duration / float(self.timeSlices))
+        self.stepTimeS = duration / float(self.timeSlices)
         #print("self.stepTime", self.stepTime)
 
-        self.currentColumn = self.width - 1
+        self.currentColumn = self.width-1
+        self.startTime = time.clock() 
+        self.targetTime = time.clock() + self.stepTimeS
         self.doColumn()
-
-        '''for x in range(0, self.width):
-        self.mainwindow.after(self.stepTime*x, functools.partial(self.drawColumn, x))
-        self.mainwindow.after(self.stepTime*x, functools.partial(self.showColumn, x))
-        self.mainwindow.after(self.scaDuration.get() * 1000, self.onShowEnd)
-        '''
 
     def doColumn(self):
         thisColumn = self.currentColumn
+        if time.clock() < self.targetTime:
+            self.timer = self.mainwindow.after(1, self.doColumn)
+            return
+        
+	#print ("doColumn thisColumn", thisColumn, "self.stepTime", self.stepTime)
         self.currentColumn -= 1
         if self.currentColumn  > 0:
-            self.mainwindow.after(self.stepTime, self.doColumn)
+            self.targetTime += self.stepTimeS
+            self.timer = self.mainwindow.after(1, self.doColumn)
             
         if self.doQuick == True:
             self.quickColumn(thisColumn)
@@ -232,11 +236,13 @@ class MyApplication:
         if self.currentColumn  == 0:
             self.onShowEnd()
 
-
     def showMessage(self, message):
         self.builder.tkvariables.__getitem__('messageText').set(message)
 
     def on_btnDraw_clicked(self, event=None):
+	if self.currentColumn  > 0:
+		self.showMessage("Cannot start now, still running")
+		return False
         self.intRepeats = int(self.builder.tkvariables.__getitem__('intRepeats').get())
         self.completeRepeats = 0
         self.singleShow()

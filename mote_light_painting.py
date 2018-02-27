@@ -176,10 +176,17 @@ class MyApplication:
     def showColumn(self, x):
         if not self.simulate :
             if (self.mode == MODE_COLOR):
-                for py in range(0, self.height):
-                    r, g, b = self.color
-                    channel, pixel= self.yToStick[py]
-                    self.mote.set_pixel(channel, pixel, r, g, b)
+                try:
+                    for py in range(0, self.height):
+                        r, g, b = self.color
+                        channel, pixel= self.yToStick[py]
+                        #print(channel, pixel, r, g, b)
+                        self.mote.set_pixel(channel, pixel, r, g, b)
+                    self.mote.show()
+                except IOError:
+                    self.simulate = True
+                    self.showMessage("Connection Failed. Simulating")
+                
             if (self.mode == MODE_IMAGE):
                 iPaintWhite = self.builder.tkvariables.__getitem__('iPaintWhite').get()
                 try:

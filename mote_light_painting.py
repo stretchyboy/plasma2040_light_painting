@@ -214,6 +214,16 @@ class MyApplication:
         if not self.simulate :
             self.mote.clear()
             self.mote.show()
+            
+        try:
+            self.im.seek(self.im.tell()+1)
+            self.rgb_im = self.im.convert('RGB').resize((self.timeSlices, len(self.yToStick)))
+            print("Loaded next frame")
+            self.showMessage("Loaded next frame")
+            self.drawPreview()
+        except EOFError:
+            print("No more frames")
+            
         self.completeRepeats += 1
         if(self.completeRepeats < self.intRepeats):
             self.singleShow()

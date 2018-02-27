@@ -21,10 +21,10 @@
         <property name="type">file</property>
         <bind add="" handler="on_path_changed" sequence="&lt;&lt;PathChooserPathChanged&gt;&gt;" />
         <layout>
-          <property name="column">1</property>
+          <property name="column">0</property>
           <property name="columnspan">2</property>
           <property name="propagate">True</property>
-          <property name="row">0</property>
+          <property name="row">1</property>
           <property name="sticky">ew</property>
         </layout>
       </object>
@@ -38,7 +38,7 @@
           <property name="column">0</property>
           <property name="columnspan">3</property>
           <property name="propagate">True</property>
-          <property name="row">1</property>
+          <property name="row">2</property>
           <property name="sticky">ew</property>
         </layout>
       </object>
@@ -147,6 +147,17 @@
           <property name="propagate">True</property>
           <property name="row">5</property>
           <property name="sticky">ew</property>
+        </layout>
+      </object>
+    </child>
+    <child>
+      <object class="ttk.Button" id="btnReload">
+        <property name="text" translatable="yes">Reload</property>
+        <bind add="" handler="on_path_changed" sequence="&lt;1&gt;" />
+        <layout>
+          <property name="column">2</property>
+          <property name="propagate">True</property>
+          <property name="row">1</property>
         </layout>
       </object>
     </child>

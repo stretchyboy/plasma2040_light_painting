@@ -36,13 +36,16 @@ So far being built for :-
 * Canon EOS 1200D (optional) - Should work with most EOS models and most cameras gphoto2 can control. Nothing clever just triggering shutter release with the settings you have set on the camera.
 
 
-![Flag and Flats](demos/Flag%20and%20Flats.jpg)
+![Stick](demos/Stick.jpg)
+![Stick Back](demos/Stick%20Back.jpg)
 
 ### Other Hardware
 
 * Perspex stick, cut from  [this svg file](mote_light_painting_stick.svg)
 * Screws to attach Mote sticks to the stick
 * If using Raspberry Pi - USB Battery Pack
+
+![Squigy Thingy](demos/Squigy%20Thingy.JPG)
 
 ## Usage
 

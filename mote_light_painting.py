@@ -171,6 +171,7 @@ class MyApplication:
         self.color = color[0]
         self.drawPreview()
         print(self.color)
+        return True
 
     def showColumn(self, x):
         if not self.simulate :
@@ -211,6 +212,7 @@ class MyApplication:
     def drawColumn(self, px):
         if (self.mode == MODE_COLOR):
             color = str(webcolors.rgb_to_hex(self.color))
+            #print(color)
             self.canPreview.create_rectangle( px, 0, px+1, (len(self.yToStick) * self.motePixelInSceenPixels), width=0, fill=color)
             
         if (self.mode == MODE_IMAGE):

@@ -21,6 +21,7 @@ except:
 
 import pygubu
 from PIL import Image #PILLOW
+from tkColorChooser import askcolor 
 import webcolors
 import sys
 import time
@@ -37,7 +38,9 @@ import re
 import gphoto2 as gp
 CURRENT_DIR = os.path.abspath(os.path.dirname(__file__))
 
-
+MODE_IMAGE = 1
+MODE_COLOR = 2
+MODE_GRADIENT = 3
 
 
 class MyApplication:
@@ -52,6 +55,8 @@ class MyApplication:
         self.currentColumn = 0
         self.simulate = False
         self.animate = False
+        self.mode = MODE_IMAGE
+        self.color = (255, 0, 0)
 
         screen_width = gtk.gdk.screen_width()
         screen_height = gtk.gdk.screen_height()
@@ -91,9 +96,6 @@ class MyApplication:
         self.loadImage("images/Spectrum Vertical.png")
 
         builder.connect_callbacks(self)
-        
-        
-
         
 
     def addStick(self, channel, up=True, length=16, gammacorrect=True):  #from top
@@ -151,56 +153,73 @@ class MyApplication:
 
     def loadImage(self, filename):
         self.im = Image.open(filename)
+        message = "Opened "+filename
+        self.showMessage(message)
         self.rgb_im = self.im.convert('RGB').resize((self.timeSlices, len(self.yToStick)))
         self.width, self.height = self.rgb_im.size
         self.drawPreview()
 
     def on_path_changed(self, event=None):
-        self.animate = False
         # Get the path choosed by the user
         filename = self.pathFilePath.cget('path')
-        
-        message = "Opened "+filename
-        if re.match(".*[0-9]+\.[a-zA-Z][a-zA-Z][a-zA-Z][a-zA-Z]?", filename):
-            self.animate = True
-            message += " Animation Found"
-        self.showMessage(message)
+        self.mode = MODE_IMAGE
         self.loadImage(filename)
-
+                
+    def getColor(self, event=None):
+        color = askcolor(self.color) 
+        self.mode = MODE_COLOR
+        self.color = color[0]
+        self.drawPreview()
+        print(self.color)
 
     def showColumn(self, x):
         if not self.simulate :
-            iPaintWhite = self.builder.tkvariables.__getitem__('iPaintWhite').get()
-            try:
+            if (self.mode == MODE_COLOR):
                 for py in range(0, self.height):
-                    r, g, b = self.rgb_im.getpixel((x, py))
-                    colour = (r, g, b)
+                    r, g, b = self.color
                     channel, pixel= self.yToStick[py]
-                    if colour != (0, 0, 0) and (iPaintWhite or colour != (255, 255, 255)):
-                        self.mote.set_pixel(channel, pixel, r, g, b)
-                    else:
-                        self.mote.set_pixel(channel, pixel, 0, 0, 0)
-                        
-                self.mote.show()
-            except IOError:
-                self.simulate = True
-                self.showMessage("Connection Failed. Simulating")
+                    self.mote.set_pixel(channel, pixel, r, g, b)
+            if (self.mode == MODE_IMAGE):
+                iPaintWhite = self.builder.tkvariables.__getitem__('iPaintWhite').get()
+                try:
+                    for py in range(0, self.height):
+                        r, g, b = self.rgb_im.getpixel((x, py))
+                        colour = (r, g, b)
+                        channel, pixel= self.yToStick[py]
+                        if colour != (0, 0, 0) and (iPaintWhite or colour != (255, 255, 255)):
+                            self.mote.set_pixel(channel, pixel, r, g, b)
+                        else:
+                            self.mote.set_pixel(channel, pixel, 0, 0, 0)
+                            
+                    self.mote.show()
+                except IOError:
+                    self.simulate = True
+                    self.showMessage("Connection Failed. Simulating")
                 
     
     def quickColumn(self, px):
-        r, g, b = self.rgb_im.getpixel((px, 1))
-        colour = (r, g, b)
-        color = str(webcolors.rgb_to_hex(colour))
-        self.canPreview.create_rectangle( px, 0, px+1, (len(self.yToStick) * self.motePixelInSceenPixels), width=0, fill=color)
+        if (self.mode == MODE_COLOR):
+            color = str(webcolors.rgb_to_hex(self.color))
+            self.canPreview.create_rectangle( px, 0, px+1, (len(self.yToStick) * self.motePixelInSceenPixels), width=0, fill=color)
+        if (self.mode == MODE_IMAGE):
+            r, g, b = self.rgb_im.getpixel((px, 1))
+            colour = (r, g, b)
+            color = str(webcolors.rgb_to_hex(colour))
+            self.canPreview.create_rectangle( px, 0, px+1, (len(self.yToStick) * self.motePixelInSceenPixels), width=0, fill=color)
 
 
     def drawColumn(self, px):
-        iPaintWhite = self.builder.tkvariables.__getitem__('iPaintWhite').get()
-        for py in range(0, len(self.yToStick)):
-            colour = self.rgb_im.getpixel((px, py))
-            if colour != (0, 0, 0) and (iPaintWhite or colour != (255, 255, 255)):
-                color = str(webcolors.rgb_to_hex(colour))
-                self.canPreview.create_rectangle( px, (py * self.motePixelInSceenPixels), px+1, (py * self.motePixelInSceenPixels) + self.motePixelInSceenPixels, width=0, fill=color)
+        if (self.mode == MODE_COLOR):
+            color = str(webcolors.rgb_to_hex(self.color))
+            self.canPreview.create_rectangle( px, 0, px+1, (len(self.yToStick) * self.motePixelInSceenPixels), width=0, fill=color)
+            
+        if (self.mode == MODE_IMAGE):
+            iPaintWhite = self.builder.tkvariables.__getitem__('iPaintWhite').get()
+            for py in range(0, len(self.yToStick)):
+                colour = self.rgb_im.getpixel((px, py))
+                if colour != (0, 0, 0) and (iPaintWhite or colour != (255, 255, 255)):
+                    color = str(webcolors.rgb_to_hex(colour))
+                    self.canPreview.create_rectangle( px, (py * self.motePixelInSceenPixels), px+1, (py * self.motePixelInSceenPixels) + self.motePixelInSceenPixels, width=0, fill=color)
 
     def drawPreview(self):
         self.canPreview.create_rectangle(0, 0, self.graphWidth, (len(self.yToStick) * self.motePixelInSceenPixels), fill="black")

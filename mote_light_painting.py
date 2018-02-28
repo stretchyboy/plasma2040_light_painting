@@ -55,6 +55,7 @@ class MyApplication:
         self.currentColumn = 0
         self.simulate = False
         self.animate = False
+        self.motePixelInCm = 1
         self.mode = MODE_IMAGE
         self.color = (255, 0, 0)
 
@@ -153,7 +154,10 @@ class MyApplication:
 
     def loadImage(self, filename):
         self.im = Image.open(filename)
-        message = "Opened "+filename
+        iOriginalWidth, iOriginalHeight = self.im.size
+        fAspect = float(iOriginalWidth) / float(iOriginalHeight)
+        targetWidth = int(fAspect * len(self.yToStick) * self.motePixelInCm)
+        message = "Opened \""+os.path.basename(filename) + "\" "+str(targetWidth)+"cm wide"
         self.showMessage(message)
         self.rgb_im = self.im.convert('RGB').resize((self.timeSlices, len(self.yToStick)))
         self.width, self.height = self.rgb_im.size

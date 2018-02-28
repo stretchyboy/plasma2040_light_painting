@@ -58,6 +58,7 @@ sudo ./mote_light_painting.py
 ![Screenshot](demos/Screenshot.png)
 
 * Choose a file (there is a nice default spectrum if you are just testing)
+* A message displays how wide the image should be (in cm)
 * The Graph shows your image as 64 pixels (the height of a full set of motes) over the draw time (so it will usually look stretched, don't worry its a graph) 
 * We often end up needing to ignore pure white pixels, if you need them painting check the 'Paint White ?' box. At the moment you need to reload the file.
 * Ticking 'Control Camera' will try to capture a photo from you USB / PTP camera via gphoto2 (there is no error checking here at the mo, so if it freezes start again).

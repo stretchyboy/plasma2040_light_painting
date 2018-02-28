@@ -58,6 +58,7 @@ class MyApplication:
         self.motePixelInCm = 1
         self.mode = MODE_IMAGE
         self.color = (255, 0, 0)
+        self.colorend = (0, 0, 255)
 
         screen_width = gtk.gdk.screen_width()
         screen_height = gtk.gdk.screen_height()
@@ -94,7 +95,8 @@ class MyApplication:
 
         self.builder.tkvariables.__getitem__('intDuration').set(5)
         self.connectToMote()
-        self.loadImage("images/Spectrum Vertical.png")
+        self.filename = "images/Spectrum Vertical.png"
+        self.loadImage()
 
         builder.connect_callbacks(self)
         
@@ -152,7 +154,9 @@ class MyApplication:
     def quit(self, event=None):
         self.mainwindow.quit()
 
-    def loadImage(self, filename):
+        
+    def loadImage(self):    
+        filename = self.filename
         self.im = Image.open(filename)
         iOriginalWidth, iOriginalHeight = self.im.size
         fAspect = float(iOriginalWidth) / float(iOriginalHeight)
@@ -161,38 +165,54 @@ class MyApplication:
         self.showMessage(message)
         self.rgb_im = self.im.convert('RGB').resize((self.timeSlices, len(self.yToStick)))
         self.width, self.height = self.rgb_im.size
-        self.drawPreview()
+        if(self.mode == MODE_IMAGE):
+            self.drawPreview()
 
     def on_path_changed(self, event=None):
         # Get the path choosed by the user
-        filename = self.pathFilePath.cget('path')
+        self.filename = self.pathFilePath.cget('path')
         self.mode = MODE_IMAGE
-        self.loadImage(filename)
+        self.loadImage()
                 
     def getColor(self, event=None):
         color = askcolor(self.color) 
         self.mode = MODE_COLOR
         self.color = color[0]
         self.drawPreview()
-        print(self.color)
-        return True
+    
+    def gradientChanged(self, event=None):
+        iGradient = self.builder.tkvariables.__getitem__('iGradient').get()    
+        self.mode = MODE_COLOR
+        self.drawPreview()
+    
+    def getColorEnd(self, event=None):
+        color = askcolor(self.colorend) 
+        self.builder.tkvariables.__getitem__('iGradient').set(1)
+        self.mode = MODE_COLOR
+        self.colorend = color[0]
+        self.drawPreview()
+        
 
     def showColumn(self, x):
         if not self.simulate :
+            iPaintWhite = self.builder.tkvariables.__getitem__('iPaintWhite').get()
             if (self.mode == MODE_COLOR):
                 try:
+                    r, g, b = self.getColColour(x)
                     for py in range(0, self.height):
-                        r, g, b = self.color
                         channel, pixel= self.yToStick[py]
-                        #print(channel, pixel, r, g, b)
-                        self.mote.set_pixel(channel, pixel, r, g, b)
+                        if colour != (0, 0, 0) and (iPaintWhite or colour != (255, 255, 255)):
+                            self.mote.set_pixel(channel, pixel, r, g, b)
+                        else:
+                            self.mote.set_pixel(channel, pixel, 0, 0, 0)
+                        
                     self.mote.show()
                 except IOError:
                     self.simulate = True
                     self.showMessage("Connection Failed. Simulating")
                 
             if (self.mode == MODE_IMAGE):
-                iPaintWhite = self.builder.tkvariables.__getitem__('iPaintWhite').get()
+                
                 try:
                     for py in range(0, self.height):
                         r, g, b = self.rgb_im.getpixel((x, py))
@@ -211,7 +231,7 @@ class MyApplication:
     
     def quickColumn(self, px):
         if (self.mode == MODE_COLOR):
-            color = str(webcolors.rgb_to_hex(self.color))
+            color = str(webcolors.rgb_to_hex(self.getColColour(px)))
             self.canPreview.create_rectangle( px, 0, px+1, (len(self.yToStick) * self.motePixelInSceenPixels), width=0, fill=color)
         if (self.mode == MODE_IMAGE):
             r, g, b = self.rgb_im.getpixel((px, 1))
@@ -219,15 +239,28 @@ class MyApplication:
             color = str(webcolors.rgb_to_hex(colour))
             self.canPreview.create_rectangle( px, 0, px+1, (len(self.yToStick) * self.motePixelInSceenPixels), width=0, fill=color)
 
+    def getColColour(self, px):
+        iGradient = self.builder.tkvariables.__getitem__('iGradient').get()
+           
+        if(iGradient == 1):
+            r = int(round(self.color[0] + float(self.colorend[0] - self.color[0])*(float(px) / float(self.graphWidth))))
+            g = int(round(self.color[1] + float(self.colorend[1] - self.color[1])*(float(px) / float(self.graphWidth))))
+            b = int(round(self.color[2] + float(self.colorend[2] - self.color[2])*(float(px) / float(self.graphWidth))))
+            return (r,g,b)
+        
+        return self.color
+            
+        
 
     def drawColumn(self, px):
+        iPaintWhite = self.builder.tkvariables.__getitem__('iPaintWhite').get()
         if (self.mode == MODE_COLOR):
-            color = str(webcolors.rgb_to_hex(self.color))
-            #print(color)
-            self.canPreview.create_rectangle( px, 0, px+1, (len(self.yToStick) * self.motePixelInSceenPixels), width=0, fill=color)
+            colour = self.getColColour(px)
+            if colour != (0, 0, 0) and (iPaintWhite or colour != (255, 255, 255)):
+                color = str(webcolors.rgb_to_hex(colour))
+                self.canPreview.create_rectangle( px, 0, px+1, (len(self.yToStick) * self.motePixelInSceenPixels), width=0, fill=color)
             
         if (self.mode == MODE_IMAGE):
-            iPaintWhite = self.builder.tkvariables.__getitem__('iPaintWhite').get()
             for py in range(0, len(self.yToStick)):
                 colour = self.rgb_im.getpixel((px, py))
                 if colour != (0, 0, 0) and (iPaintWhite or colour != (255, 255, 255)):
@@ -250,7 +283,7 @@ class MyApplication:
         try:
             self.im.seek(self.im.tell()+1)
             self.rgb_im = self.im.convert('RGB').resize((self.timeSlices, len(self.yToStick)))
-            print("Loaded next frame")
+            #print("Loaded next frame")
             self.showMessage("Loaded next frame")
             self.drawPreview()
         except EOFError:
@@ -274,7 +307,6 @@ class MyApplication:
         duration = float(self.scaDuration.get())
         self.stepTime = int(1000 * duration / float(self.timeSlices))
         self.stepTimeS = duration / float(self.timeSlices)
-        #print("self.stepTime", self.stepTime)
 
         self.currentColumn = self.width-1
         self.startTime = time.time() 
@@ -286,8 +318,7 @@ class MyApplication:
         if time.time() < self.targetTime:
             self.timer = self.mainwindow.after(1, self.doColumn)
             return
-        
-	    #print ("doColumn thisColumn", thisColumn, "self.stepTime", self.stepTime)
+
         self.currentColumn -= 1
         if self.currentColumn  > 0:
             self.targetTime += self.stepTimeS

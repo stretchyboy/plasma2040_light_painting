@@ -79,8 +79,8 @@
     </child>
     <child>
       <object class="tk.Button" id="btnDraw">
+        <property name="command">on_btnDraw_clicked</property>
         <property name="text" translatable="yes">Draw</property>
-        <bind add="" handler="on_btnDraw_clicked" sequence="&lt;1&gt;" />
         <layout>
           <property name="column">0</property>
           <property name="columnspan">3</property>
@@ -120,13 +120,13 @@
     </child>
     <child>
       <object class="tk.Checkbutton" id="chePaintWhite">
+        <property name="command">drawPreview</property>
         <property name="offvalue">0</property>
         <property name="onvalue">1</property>
         <property name="text" translatable="yes">Paint White</property>
         <property name="variable">int:iPaintWhite</property>
-        <bind add="True" handler="on_path_changed" sequence="&lt;1&gt;" />
         <layout>
-          <property name="column">1</property>
+          <property name="column">2</property>
           <property name="propagate">True</property>
           <property name="row">8</property>
           <property name="sticky">w</property>
@@ -152,8 +152,8 @@
     </child>
     <child>
       <object class="ttk.Button" id="btnReload">
+        <property name="command">loadImage</property>
         <property name="text" translatable="yes">Reload</property>
-        <bind add="" handler="on_path_changed" sequence="&lt;1&gt;" />
         <layout>
           <property name="column">2</property>
           <property name="propagate">True</property>
@@ -163,12 +163,38 @@
     </child>
     <child>
       <object class="ttk.Button" id="btnColor">
+        <property name="command">getColor</property>
         <property name="text" translatable="yes">Colour</property>
-        <bind add="True" handler="getColor" sequence="&lt;1&gt;" />
+        <layout>
+          <property name="column">0</property>
+          <property name="propagate">True</property>
+          <property name="row">9</property>
+          <property name="sticky">ew</property>
+        </layout>
+      </object>
+    </child>
+    <child>
+      <object class="ttk.Button" id="btnColorEnd">
+        <property name="command">getColorEnd</property>
+        <property name="text" translatable="yes">End Color</property>
         <layout>
           <property name="column">2</property>
           <property name="propagate">True</property>
-          <property name="row">8</property>
+          <property name="row">9</property>
+          <property name="sticky">ew</property>
+        </layout>
+      </object>
+    </child>
+    <child>
+      <object class="tk.Checkbutton" id="cheGradient">
+        <property name="command">gradientChanged</property>
+        <property name="offvalue">0</property>
+        <property name="onvalue">1</property>
+        <property name="variable">int:iGradient</property>
+        <layout>
+          <property name="column">1</property>
+          <property name="propagate">True</property>
+          <property name="row">9</property>
         </layout>
       </object>
     </child>

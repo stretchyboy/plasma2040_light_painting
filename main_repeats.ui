@@ -85,7 +85,7 @@
           <property name="column">0</property>
           <property name="columnspan">3</property>
           <property name="propagate">True</property>
-          <property name="row">10</property>
+          <property name="row">13</property>
           <property name="sticky">nsew</property>
         </layout>
       </object>
@@ -99,7 +99,7 @@
           <property name="column">0</property>
           <property name="columnspan">3</property>
           <property name="propagate">True</property>
-          <property name="row">11</property>
+          <property name="row">15</property>
           <property name="sticky">ew</property>
         </layout>
       </object>
@@ -195,6 +195,23 @@
           <property name="column">1</property>
           <property name="propagate">True</property>
           <property name="row">9</property>
+        </layout>
+      </object>
+    </child>
+    <child>
+      <object class="tk.Scale" id="scaPixels">
+        <property name="command">doPreview</property>
+        <property name="from_">1</property>
+        <property name="label" translatable="yes">Pixels</property>
+        <property name="orient">horizontal</property>
+        <property name="to">64</property>
+        <property name="variable">int:iPixels</property>
+        <layout>
+          <property name="column">0</property>
+          <property name="columnspan">3</property>
+          <property name="propagate">True</property>
+          <property name="row">11</property>
+          <property name="sticky">ew</property>
         </layout>
       </object>
     </child>

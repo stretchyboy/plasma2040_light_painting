@@ -92,11 +92,14 @@ class MyApplication:
         self.cheControlCamera = builder.get_object('cheControlCamera')
 
         self.chePaintWhite = builder.get_object('chePaintWhite')
-
-        self.builder.tkvariables.__getitem__('intDuration').set(5)
+        
         self.connectToMote()
+        self.builder.tkvariables.__getitem__('iPixels').set(len(self.yToStick))
         self.filename = "images/Spectrum Vertical.png"
         self.loadImage()
+        
+        self.builder.tkvariables.__getitem__('intDuration').set(5)
+        
 
         builder.connect_callbacks(self)
         
@@ -195,11 +198,14 @@ class MyApplication:
 
     def showColumn(self, x):
         if not self.simulate :
+            iPixels = self.builder.tkvariables.__getitem__('iPixels').get()
             iPaintWhite = self.builder.tkvariables.__getitem__('iPaintWhite').get()
             if (self.mode == MODE_COLOR):
                 try:
                     r, g, b = self.getColColour(x)
-                    for py in range(0, self.height):
+                    colour = (r, g, b)
+                    #for py in range(0, self.height):
+                    for py in range(0, iPixels):
                         channel, pixel= self.yToStick[py]
                         if colour != (0, 0, 0) and (iPaintWhite or colour != (255, 255, 255)):
                             self.mote.set_pixel(channel, pixel, r, g, b)
@@ -214,7 +220,8 @@ class MyApplication:
             if (self.mode == MODE_IMAGE):
                 
                 try:
-                    for py in range(0, self.height):
+                    #for py in range(0, self.height):
+                    for py in range(0, iPixels):
                         r, g, b = self.rgb_im.getpixel((x, py))
                         colour = (r, g, b)
                         channel, pixel= self.yToStick[py]
@@ -254,24 +261,31 @@ class MyApplication:
 
     def drawColumn(self, px):
         iPaintWhite = self.builder.tkvariables.__getitem__('iPaintWhite').get()
+        iPixels = self.builder.tkvariables.__getitem__('iPixels').get()
+        
         if (self.mode == MODE_COLOR):
             colour = self.getColColour(px)
             if colour != (0, 0, 0) and (iPaintWhite or colour != (255, 255, 255)):
                 color = str(webcolors.rgb_to_hex(colour))
-                self.canPreview.create_rectangle( px, 0, px+1, (len(self.yToStick) * self.motePixelInSceenPixels), width=0, fill=color)
+                #self.canPreview.create_rectangle( px, 0, px+1, (len(self.yToStick) * self.motePixelInSceenPixels), width=0, fill=color)
+                self.canPreview.create_rectangle( px, 0, px+1, (iPixels * self.motePixelInSceenPixels), width=0, fill=color)
             
         if (self.mode == MODE_IMAGE):
-            for py in range(0, len(self.yToStick)):
+            #for py in range(0, len(self.yToStick)):
+            for py in range(0, iPixels):
                 colour = self.rgb_im.getpixel((px, py))
                 if colour != (0, 0, 0) and (iPaintWhite or colour != (255, 255, 255)):
                     color = str(webcolors.rgb_to_hex(colour))
                     self.canPreview.create_rectangle( px, (py * self.motePixelInSceenPixels), px+1, (py * self.motePixelInSceenPixels) + self.motePixelInSceenPixels, width=0, fill=color)
 
+    def doPreview(self, event=None):
+        self.drawPreview()
+        
+        
     def drawPreview(self):
         self.canPreview.create_rectangle(0, 0, self.graphWidth, (len(self.yToStick) * self.motePixelInSceenPixels), fill="black")
         for x in range(0, self.width):
             self.drawColumn(x)
-        #print ("Preview complete")
 
     def onShowEnd(self):
         message = "Show "+str(self.completeRepeats + 1) + "/"+str(self.intRepeats)+" Complete in "+str(time.time() - self.startTime)+"s"
@@ -283,11 +297,11 @@ class MyApplication:
         try:
             self.im.seek(self.im.tell()+1)
             self.rgb_im = self.im.convert('RGB').resize((self.timeSlices, len(self.yToStick)))
-            #print("Loaded next frame")
+            
             self.showMessage("Loaded next frame")
             self.drawPreview()
         except EOFError:
-            print("No more frames")
+            pass
             
         self.completeRepeats += 1
         if(self.completeRepeats < self.intRepeats):

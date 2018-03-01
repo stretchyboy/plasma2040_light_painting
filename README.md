@@ -66,6 +66,8 @@ sudo ./mote_light_painting.py
 * "Draw Time" is how long it will take for your image to be drawn and will depend on the exposure time you are using.
 * "Repeats" set how many times the Delay/Draw cycle takes place. This should allow for nice light painted / stop motion effects.
 * "Colour" lets you choose a single colour to paint with.
+* "End Colour" and the tick box allow you to set a changing colour pattern
+* The "Pixels" slider lets you change the height of your light brush.
 * The "Draw" button :-
   * Blanks the Graph
   * Waits for any delay, drawing the progress on the Graph

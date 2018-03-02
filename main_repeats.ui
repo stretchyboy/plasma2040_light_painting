@@ -106,10 +106,11 @@
     </child>
     <child>
       <object class="tk.Checkbutton" id="cheControlCamera">
-        <property name="offvalue">0</property>
-        <property name="onvalue">1</property>
+        <property name="offvalue">False</property>
+        <property name="onvalue">True</property>
         <property name="text" translatable="yes">Camera</property>
-        <property name="variable">int:iControlCamera</property>
+        <property name="tristatevalue">False</property>
+        <property name="variable">boolean:bControlCamera</property>
         <layout>
           <property name="column">0</property>
           <property name="propagate">True</property>
@@ -121,10 +122,11 @@
     <child>
       <object class="tk.Checkbutton" id="chePaintWhite">
         <property name="command">drawPreview</property>
-        <property name="offvalue">0</property>
-        <property name="onvalue">1</property>
+        <property name="offvalue">False</property>
+        <property name="onvalue">True</property>
         <property name="text" translatable="yes">Paint White</property>
-        <property name="variable">int:iPaintWhite</property>
+        <property name="tristatevalue">False</property>
+        <property name="variable">boolean:bPaintWhite</property>
         <layout>
           <property name="column">2</property>
           <property name="propagate">True</property>
@@ -188,9 +190,10 @@
     <child>
       <object class="tk.Checkbutton" id="cheGradient">
         <property name="command">gradientChanged</property>
-        <property name="offvalue">0</property>
-        <property name="onvalue">1</property>
-        <property name="variable">int:iGradient</property>
+        <property name="offvalue">False</property>
+        <property name="onvalue">True</property>
+        <property name="tristatevalue">False</property>
+        <property name="variable">boolean:bGradient</property>
         <layout>
           <property name="column">1</property>
           <property name="propagate">True</property>
@@ -212,6 +215,51 @@
           <property name="propagate">True</property>
           <property name="row">11</property>
           <property name="sticky">ew</property>
+        </layout>
+      </object>
+    </child>
+    <child>
+      <object class="tk.Checkbutton" id="cheReverse">
+        <property name="command">drawPreview</property>
+        <property name="offvalue">False</property>
+        <property name="onvalue">True</property>
+        <property name="text" translatable="yes">Flip</property>
+        <property name="tristatevalue">False</property>
+        <property name="variable">boolean:bReverseImage</property>
+        <layout>
+          <property name="column">2</property>
+          <property name="propagate">True</property>
+          <property name="row">12</property>
+        </layout>
+      </object>
+    </child>
+    <child>
+      <object class="tk.Checkbutton" id="cheFacing">
+        <property name="command">drawPreview</property>
+        <property name="offvalue">False</property>
+        <property name="onvalue">True</property>
+        <property name="text" translatable="yes">Facing</property>
+        <property name="tristatevalue">False</property>
+        <property name="variable">boolean:bFacingScreen</property>
+        <layout>
+          <property name="column">1</property>
+          <property name="propagate">True</property>
+          <property name="row">12</property>
+        </layout>
+      </object>
+    </child>
+    <child>
+      <object class="tk.Checkbutton" id="cheFromLeft">
+        <property name="command">drawPreview</property>
+        <property name="offvalue">True</property>
+        <property name="onvalue">False</property>
+        <property name="text" translatable="yes">From Right</property>
+        <property name="tristatevalue">True</property>
+        <property name="variable">boolean:bPaintFromLeft</property>
+        <layout>
+          <property name="column">0</property>
+          <property name="propagate">True</property>
+          <property name="row">12</property>
         </layout>
       </object>
     </child>

@@ -21,7 +21,7 @@ except:
 
 import pygubu
 from PIL import Image #PILLOW
-from tkColorChooser import askcolor 
+from tkColorChooser import askcolor
 import webcolors
 import sys
 import time
@@ -59,12 +59,15 @@ class MyApplication:
         self.mode = MODE_IMAGE
         self.color = (255, 0, 0)
         self.colorend = (0, 0, 255)
-        
+
+        self.bCameraBusy = False
+
         self.bPaintFromLeft = True
-        self.bFacingScreen = False
+        self.bFacingScreen = True
         self.bReverseImage = False
-        
-        
+        self.bGradient = False
+        self.bPaintWhite = False
+
 
         screen_width = gtk.gdk.screen_width()
         screen_height = gtk.gdk.screen_height()
@@ -96,17 +99,19 @@ class MyApplication:
         self.cheControlCamera = builder.get_object('cheControlCamera')
 
         self.chePaintWhite = builder.get_object('chePaintWhite')
-        
+
         self.connectToMote()
-        self.builder.tkvariables.__getitem__('iPixels').set(len(self.yToStick))
+        self.iPixels = len(self.yToStick)
+        #self.builder.tkvariables.__getitem__('iPixels').set(len(self.yToStick))
+        self.updateControls()
         self.filename = "images/Spectrum Vertical.png"
         self.loadImage()
-        
+
         self.builder.tkvariables.__getitem__('intDuration').set(5)
-        
+
 
         builder.connect_callbacks(self)
-        
+
 
     def addStick(self, channel, up=True, length=16, gammacorrect=True):  #from top
         if not self.simulate :
@@ -128,18 +133,19 @@ class MyApplication:
         except IOError:
             self.simulate = True
             self.showMessage("Simulating")
-            
+
         self.yToStick = []
         self.addStick(1)
         self.addStick(2)
         self.addStick(3)
         self.addStick(4)
-    
+
 
 
     def takePhoto(self):
         logging.basicConfig(
             format='%(levelname)s: %(name)s: %(message)s', level=logging.WARNING)
+        self.bCameraBusy = True
         gp.check_result(gp.use_python_logging())
         camera = gp.check_result(gp.gp_camera_new())
         gp.check_result(gp.gp_camera_init(camera))
@@ -156,13 +162,14 @@ class MyApplication:
         if(self.completeRepeats == self.intRepeats):
             subprocess.call(['xdg-open', target])
         gp.check_result(gp.gp_camera_exit(camera))
+        self.bCameraBusy = False
         return 0
 
     def quit(self, event=None):
         self.mainwindow.quit()
 
-        
-    def loadImage(self):    
+
+    def loadImage(self):
         filename = self.filename
         self.im = Image.open(filename)
         iOriginalWidth, iOriginalHeight = self.im.size
@@ -180,24 +187,24 @@ class MyApplication:
         self.filename = self.pathFilePath.cget('path')
         self.mode = MODE_IMAGE
         self.loadImage()
-                
+
     def getColor(self, event=None):
-        color = askcolor(self.color) 
+        color = askcolor(self.color)
         self.mode = MODE_COLOR
         self.color = color[0]
         self.drawPreview()
-    
+
     def gradientChanged(self, event=None):
         self.mode = MODE_COLOR
         self.drawPreview()
-    
+
     def getColorEnd(self, event=None):
-        color = askcolor(self.colorend) 
+        color = askcolor(self.colorend)
         self.builder.tkvariables.__getitem__('bGradient').set(True)
         self.mode = MODE_COLOR
         self.colorend = color[0]
         self.drawPreview()
-        
+
     def getImageX(self, processX):
         direction = (1 if self.bPaintFromLeft else -1) * (-1 if self.bReverseImage else 1)
         x = (0 if (direction == 1) else (self.timeSlices-1)) + (direction * processX)
@@ -211,8 +218,8 @@ class MyApplication:
         #if (processX < 5 or processX> (self.timeSlices - 5)):
         #    print("getPreviewX", processX, x)
         return x
-        
-        
+
+
     def showColumn(self, x):
         iImageX = self.getImageX(x)
         if not self.simulate :
@@ -226,12 +233,12 @@ class MyApplication:
                             self.mote.set_pixel(channel, pixel, r, g, b)
                         else:
                             self.mote.set_pixel(channel, pixel, 0, 0, 0)
-                        
+
                     self.mote.show()
                 except IOError:
                     self.simulate = True
                     self.showMessage("Connection Failed. Simulating")
-                
+
             if (self.mode == MODE_IMAGE):
                 try:
                     #for py in range(0, self.height):
@@ -243,21 +250,29 @@ class MyApplication:
                             self.mote.set_pixel(channel, pixel, r, g, b)
                         else:
                             self.mote.set_pixel(channel, pixel, 0, 0, 0)
-                            
+
                     self.mote.show()
                 except IOError:
                     self.simulate = True
                     self.showMessage("Connection Failed. Simulating")
-    
+
+    def updateControls(self):
+        self.builder.tkvariables.__getitem__('bGradient').set(self.bGradient)
+        self.builder.tkvariables.__getitem__('bReverseImage').set(self.bReverseImage)
+        self.builder.tkvariables.__getitem__('bFacingScreen').set(self.bFacingScreen)
+        self.builder.tkvariables.__getitem__('bPaintFromLeft').set(self.bPaintFromLeft)
+        self.builder.tkvariables.__getitem__('bPaintWhite').set(self.bPaintWhite)
+        self.builder.tkvariables.__getitem__('iPixels').set(self.iPixels)
+
     def updateParams(self):
-        self.bGradient = self.builder.tkvariables.__getitem__('bGradient').get()    
-        self.bReverseImage = self.builder.tkvariables.__getitem__('bReverseImage').get()    
-        self.bFacingScreen = self.builder.tkvariables.__getitem__('bFacingScreen').get()    
-        self.bPaintFromLeft = self.builder.tkvariables.__getitem__('bPaintFromLeft').get()    
-        self.bPaintWhite = self.builder.tkvariables.__getitem__('bPaintWhite').get()    
+        self.bGradient = self.builder.tkvariables.__getitem__('bGradient').get()
+        self.bReverseImage = self.builder.tkvariables.__getitem__('bReverseImage').get()
+        self.bFacingScreen = self.builder.tkvariables.__getitem__('bFacingScreen').get()
+        self.bPaintFromLeft = self.builder.tkvariables.__getitem__('bPaintFromLeft').get()
+        self.bPaintWhite = self.builder.tkvariables.__getitem__('bPaintWhite').get()
         self.iPixels = self.builder.tkvariables.__getitem__('iPixels').get()
-            
-    
+
+
     def quickColumn(self, px):
         iImageX = self.getImageX(x)
         iPreviewX = self.getPreviewX(x)
@@ -277,23 +292,23 @@ class MyApplication:
             g = int(round(self.color[1] + float(self.colorend[1] - self.color[1])*(float(px) / float(self.graphWidth))))
             b = int(round(self.color[2] + float(self.colorend[2] - self.color[2])*(float(px) / float(self.graphWidth))))
             return (r,g,b)
-        
+
         return self.color
-            
-        
+
+
 
     def drawColumn(self, x):
         iImageX = self.getImageX(x)
         iPreviewX = self.getPreviewX(x)
         iPreviewXend = self.getPreviewX(x+1)
-                
+
         if (self.mode == MODE_COLOR):
             colour = self.getColColour(iImageX)
             if colour != (0, 0, 0) and (self.PaintWhite or colour != (255, 255, 255)):
                 color = str(webcolors.rgb_to_hex(colour))
                 #self.canPreview.create_rectangle( px, 0, px+1, (len(self.yToStick) * self.motePixelInSceenPixels), width=0, fill=color)
                 self.canPreview.create_rectangle( iPreviewX, 0, iPreviewXend, (self.iPixels * self.motePixelInSceenPixels), width=0, fill=color)
-            
+
         if (self.mode == MODE_IMAGE):
             #for py in range(0, len(self.yToStick)):
             for py in range(0, self.iPixels):
@@ -304,32 +319,42 @@ class MyApplication:
 
     def doPreview(self, event=None):
         self.drawPreview()
-        
-        
+
+
     def drawPreview(self):
         self.updateParams()
-        
+
         self.canPreview.create_rectangle(0, 0, self.graphWidth, (len(self.yToStick) * self.motePixelInSceenPixels), fill="black")
         for x in range(0, self.graphWidth):
             self.drawColumn(x)
 
     def onShowEnd(self):
-        message = "Show "+str(self.completeRepeats + 1) + "/"+str(self.intRepeats)+" Complete in "+str(time.time() - self.startTime)+"s"
-        self.showMessage(message)
         if not self.simulate :
             self.mote.clear()
             self.mote.show()
-            
+
+        self.showMessage("Lights Finished")
+
+        self.completeRepeats += 1
+
+        if self.builder.tkvariables.__getitem__('bControlCamera').get():
+            while self.bCameraBusy:
+                pass
+
+        message = "Show "+str(self.completeRepeats + 1) + "/"+str(self.intRepeats)+" Complete in "+str(time.time() - self.startTime)+"s"
+        self.showMessage(message)
+
+
         try:
             self.im.seek(self.im.tell()+1)
             self.rgb_im = self.im.convert('RGB').resize((self.timeSlices, len(self.yToStick)))
-            
+
             self.showMessage("Loaded next frame")
             self.drawPreview()
         except EOFError:
             pass
-            
-        self.completeRepeats += 1
+
+
         if(self.completeRepeats < self.intRepeats):
             self.singleShow()
 
@@ -349,7 +374,7 @@ class MyApplication:
         self.stepTimeS = duration / float(self.timeSlices)
 
         self.currentColumn = 0
-        self.startTime = time.time() 
+        self.startTime = time.time()
         self.targetTime = time.time() + self.stepTimeS
         self.doColumn()
 
@@ -362,7 +387,7 @@ class MyApplication:
         if self.currentColumn < self.graphWidth:
             self.targetTime += self.stepTimeS
             self.timer = self.mainwindow.after(1, self.doColumn)
-            
+
             if self.doQuick == True:
                 self.quickColumn(thisColumn)
             else:
@@ -374,11 +399,11 @@ class MyApplication:
         else:
             self.onShowEnd()
 
-            
-        
+
+
         self.currentColumn += 1
-        
-        
+
+
     def showMessage(self, message):
         self.builder.tkvariables.__getitem__('messageText').set(message)
 
@@ -410,7 +435,7 @@ class MyApplication:
     def singleShow(self):
         if self.simulate:
             self.connectToMote()
-            
+
         self.canPreview.create_rectangle(0, 0, self.graphWidth, (len(self.yToStick) * self.motePixelInSceenPixels), fill="#AAA")
         self.countdown_id = self.canPreview.create_text(100, self.graphWidth -100, fill="#F00", text=".....")
 

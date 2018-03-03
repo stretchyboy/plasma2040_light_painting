@@ -49,18 +49,49 @@ git clone https://github.com/EduMake/mote_light_painting.git
 <div class="highlight highlight-source-shell"><pre>sudo ./mote_light_painting.py</pre></div>
 <p><a href="demos/Screenshot.png" target="_blank"><img src="demos/Screenshot.png" alt="Screenshot" style="max-width:100%;"></a></p>
 <ul>
-<li>Choose a file (there is a nice default spectrum if you are just testing)</li>
-<li>A message displays how wide the image should be (in cm)</li>
-<li>The Graph shows your image as 64 pixels (the height of a full set of motes) over the draw time (so it will usually look stretched, don't worry its a graph)</li>
-<li>We often end up needing to ignore pure white pixels, if you need them painting check the 'Paint White ?' box. At the moment you need to reload the file.</li>
-<li>Ticking 'Control Camera' will try to capture a photo from you USB / PTP camera via gphoto2 (there is no error checking here at the mo, so if it freezes start again).</li>
-<li>"Delay Time" is self explanatory.</li>
-<li>"Draw Time" is how long it will take for your image to be drawn and will depend on the exposure time you are using.</li>
-<li>"Repeats" set how many times the Delay/Draw cycle takes place. This should allow for nice light painted / stop motion effects.</li>
-<li>"Colour" lets you choose a single colour to paint with.</li>
-<li>"End Colour" and the tick box allow you to set a changing colour pattern</li>
-<li>The "Pixels" slider lets you change the height of your light brush.</li>
-<li>The "Draw" button :-
+<li>
+<p>Choose a file (there is a nice default spectrum if you are just testing)</p>
+</li>
+<li>
+<p>A message displays how wide the image should be (in cm)</p>
+</li>
+<li>
+<p>The Graph shows your image as 64 pixels (the height of a full set of motes) over the draw time (so it will usually look stretched, don't worry its a graph)</p>
+</li>
+<li>
+<p>We often end up needing to ignore pure white pixels, if you need them painting check the 'Paint White ?' box. At the moment you need to reload the file.</p>
+</li>
+<li>
+<p>Ticking 'Control Camera' will try to capture a photo from you USB / PTP camera via gphoto2 (there is no error checking here at the mo, so if it freezes start again).</p>
+</li>
+<li>
+<p>"Delay Time" is self explanatory.</p>
+</li>
+<li>
+<p>"Draw Time" is how long it will take for your image to be drawn and will depend on the exposure time you are using.</p>
+</li>
+<li>
+<p>"Repeats" set how many times the Delay/Draw cycle takes place. This should allow for nice light painted / stop motion effects.</p>
+</li>
+<li>
+<p>"Colour" lets you choose a single colour to paint with.</p>
+</li>
+<li>
+<p>"End Colour" and the tick box allow you to set a changing colour pattern</p>
+</li>
+<li>
+<p>The "Pixels" slider lets you change the height of your light brush.</p>
+</li>
+<li>
+<p>Orientation controls</p>
+<ul>
+<li>"Paint From Left" - The painting starts on the painter left (should not effect the orientation of the painter image)</li>
+<li>"Facing" - The screen is Facing the painter so the graph move the same way the painter does</li>
+<li>"Flip" - Reverse the image</li>
+</ul>
+</li>
+<li>
+<p>The "Draw" button :-</p>
 <ul>
 <li>Blanks the Graph</li>
 <li>Waits for any delay, drawing the progress on the Graph</li>

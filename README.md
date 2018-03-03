@@ -69,9 +69,9 @@ sudo ./mote_light_painting.py
 * "End Colour" and the tick box allow you to set a changing colour pattern
 * The "Pixels" slider lets you change the height of your light brush.
 * Orientation controls
-  * Paint From Left - The painting starts on the painter left (should not effect the orientation of the painter image) 
-  * Facing - The screen is Facing the painter so the graph move the same way the painter does
-  * Flip - Reverse the image 
+  * "Paint From Left" - The painting starts on the painter left (should not effect the orientation of the painter image) 
+  * "Facing" - The screen is Facing the painter so the graph move the same way the painter does
+  * "Flip" - Reverse the image 
 
 * The "Draw" button :-
   * Blanks the Graph

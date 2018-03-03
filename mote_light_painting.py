@@ -114,6 +114,9 @@ class MyApplication:
 
         builder.connect_callbacks(self)
 
+    def beep(self, duration = 0.1):
+        freq = 440  # Hz
+        os.system('play --no-show-progress --null --channels 1 synth %s sine %f' % (duration, freq))
 
     def addStick(self, channel, up=True, length=16, gammacorrect=True):  #from top
         if not self.simulate :
@@ -429,19 +432,30 @@ class MyApplication:
         self.singleShow()
 
     def drawCountdown(self):
-        i = self.iFullDelay - self.delayRemaining
+        i = 1 + self.iFullDelay - self.delayRemaining
         width = self.graphWidth
         if self.iFullDelay > 0:
             width = i * self.graphWidth/self.iFullDelay
-
+        
+        #print(i, self.iFullDelay,  self.delayRemaining, width)
+        
         self.canPreview.create_rectangle(0, 0, width, (len(self.yToStick) * self.motePixelInSceenPixels), fill="#000")
         message = "Show "+str(self.completeRepeats+1)+"/"+str(self.iRepeats)+" starts in "+str(self.delayRemaining)
         self.canPreview.itemconfigure(self.countdown_id, text=message)
         self.showMessage(message)
 
+        
+        if self.delayRemaining <= 4 and self.delayRemaining > 1:
+            self.beep(0.1)
+            #print("short")
+        
         self.delayRemaining -= 1
+        
         if self.delayRemaining > 0:
             self.mainwindow.after(1000, self.drawCountdown)
+        else:
+          self.beep(0.3)
+          #print("long")
 
     def singleShow(self):
         if self.simulate:

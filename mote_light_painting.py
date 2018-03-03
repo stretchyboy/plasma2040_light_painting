@@ -61,13 +61,17 @@ class MyApplication:
         self.colorend = (0, 0, 255)
 
         self.bCameraBusy = False
-
+        
+        self.bControlCamera = False
         self.bPaintFromLeft = True
         self.bFacingScreen = True
         self.bReverseImage = False
         self.bGradient = False
         self.bPaintWhite = False
-
+        
+        self.iDuration = 5
+        self.iRepeats = 1
+        self.iDelay = 0
 
         screen_width = gtk.gdk.screen_width()
         screen_height = gtk.gdk.screen_height()
@@ -78,7 +82,7 @@ class MyApplication:
             self.motePixelInSceenPixels = 2
         else:
             builder.add_from_file(os.path.join(CURRENT_DIR, 'main_repeats2.ui'))
-            #builder.add_from_file(os.path.join(CURRENT_DIR, 'main_ttk.ui'))
+
             self.doQuick = True
 
         #3: Create the toplevel widget.
@@ -102,13 +106,10 @@ class MyApplication:
 
         self.connectToMote()
         self.iPixels = len(self.yToStick)
-        #self.builder.tkvariables.__getitem__('iPixels').set(len(self.yToStick))
+        
         self.updateControls()
         self.filename = "images/Spectrum Vertical.png"
         self.loadImage()
-
-        self.builder.tkvariables.__getitem__('intDuration').set(5)
-
 
         builder.connect_callbacks(self)
 
@@ -140,8 +141,6 @@ class MyApplication:
         self.addStick(3)
         self.addStick(4)
 
-
-
     def takePhoto(self):
         logging.basicConfig(
             format='%(levelname)s: %(name)s: %(message)s', level=logging.WARNING)
@@ -159,7 +158,7 @@ class MyApplication:
         camera_file = gp.check_result(gp.gp_camera_file_get(
             camera, file_path.folder, file_path.name, gp.GP_FILE_TYPE_NORMAL))
         gp.check_result(gp.gp_file_save(camera_file, target))
-        if(self.completeRepeats == self.intRepeats):
+        if(self.completeRepeats == self.iRepeats):
             subprocess.call(['xdg-open', target])
         gp.check_result(gp.gp_camera_exit(camera))
         self.bCameraBusy = False
@@ -167,7 +166,6 @@ class MyApplication:
 
     def quit(self, event=None):
         self.mainwindow.quit()
-
 
     def loadImage(self):
         filename = self.filename
@@ -190,6 +188,8 @@ class MyApplication:
 
     def getColor(self, event=None):
         color = askcolor(self.color)
+        if(color[0] == None):
+            return
         self.mode = MODE_COLOR
         self.color = color[0]
         self.drawPreview()
@@ -200,7 +200,10 @@ class MyApplication:
 
     def getColorEnd(self, event=None):
         color = askcolor(self.colorend)
-        self.builder.tkvariables.__getitem__('bGradient').set(True)
+        if(color[0] == None):
+            return
+        self.bGradient = True
+        self.updateControls()
         self.mode = MODE_COLOR
         self.colorend = color[0]
         self.drawPreview()
@@ -208,17 +211,12 @@ class MyApplication:
     def getImageX(self, processX):
         direction = (1 if self.bPaintFromLeft else -1) * (-1 if self.bReverseImage else 1)
         x = (0 if (direction == 1) else (self.timeSlices-1)) + (direction * processX)
-        #if (processX < 5 or processX> (self.timeSlices - 5)):
-        #    print("getImageX", processX, x)
         return x
 
     def getPreviewX(self, processX):
         direction = (1 if self.bPaintFromLeft else -1) * (1 if self.bFacingScreen else -1)
         x = (0 if (direction == 1) else (self.timeSlices-1)) + (direction * processX)
-        #if (processX < 5 or processX> (self.timeSlices - 5)):
-        #    print("getPreviewX", processX, x)
         return x
-
 
     def showColumn(self, x):
         iImageX = self.getImageX(x)
@@ -263,6 +261,11 @@ class MyApplication:
         self.builder.tkvariables.__getitem__('bPaintFromLeft').set(self.bPaintFromLeft)
         self.builder.tkvariables.__getitem__('bPaintWhite').set(self.bPaintWhite)
         self.builder.tkvariables.__getitem__('iPixels').set(self.iPixels)
+        self.builder.tkvariables.__getitem__('iDuration').set(self.iDuration)
+        self.builder.tkvariables.__getitem__('iRepeats').set(self.iRepeats)
+        self.builder.tkvariables.__getitem__('bControlCamera').set(self.bControlCamera)
+        self.scaDelay.set(self.iDelay)
+        
 
     def updateParams(self):
         self.bGradient = self.builder.tkvariables.__getitem__('bGradient').get()
@@ -271,7 +274,11 @@ class MyApplication:
         self.bPaintFromLeft = self.builder.tkvariables.__getitem__('bPaintFromLeft').get()
         self.bPaintWhite = self.builder.tkvariables.__getitem__('bPaintWhite').get()
         self.iPixels = self.builder.tkvariables.__getitem__('iPixels').get()
-
+        self.iDuration = self.builder.tkvariables.__getitem__('iDuration').get()
+        self.iRepeats = self.builder.tkvariables.__getitem__('iRepeats').get()
+        self.bControlCamera = self.builder.tkvariables.__getitem__('bControlCamera').get()
+        self.iDelay = self.scaDelay.get()
+        
 
     def quickColumn(self, px):
         iImageX = self.getImageX(x)
@@ -287,7 +294,7 @@ class MyApplication:
             self.canPreview.create_rectangle( iPreviewX, 0, iPreviewXend, (len(self.yToStick) * self.motePixelInSceenPixels), width=0, fill=color)
 
     def getColColour(self, px):
-        if(bGradient):
+        if(self.bGradient):
             r = int(round(self.color[0] + float(self.colorend[0] - self.color[0])*(float(px) / float(self.graphWidth))))
             g = int(round(self.color[1] + float(self.colorend[1] - self.color[1])*(float(px) / float(self.graphWidth))))
             b = int(round(self.color[2] + float(self.colorend[2] - self.color[2])*(float(px) / float(self.graphWidth))))
@@ -304,9 +311,8 @@ class MyApplication:
 
         if (self.mode == MODE_COLOR):
             colour = self.getColColour(iImageX)
-            if colour != (0, 0, 0) and (self.PaintWhite or colour != (255, 255, 255)):
+            if colour != (0, 0, 0) and (self.bPaintWhite or colour != (255, 255, 255)):
                 color = str(webcolors.rgb_to_hex(colour))
-                #self.canPreview.create_rectangle( px, 0, px+1, (len(self.yToStick) * self.motePixelInSceenPixels), width=0, fill=color)
                 self.canPreview.create_rectangle( iPreviewX, 0, iPreviewXend, (self.iPixels * self.motePixelInSceenPixels), width=0, fill=color)
 
         if (self.mode == MODE_IMAGE):
@@ -320,10 +326,8 @@ class MyApplication:
     def doPreview(self, event=None):
         self.drawPreview()
 
-
     def drawPreview(self):
         self.updateParams()
-
         self.canPreview.create_rectangle(0, 0, self.graphWidth, (len(self.yToStick) * self.motePixelInSceenPixels), fill="black")
         for x in range(0, self.graphWidth):
             self.drawColumn(x)
@@ -334,16 +338,14 @@ class MyApplication:
             self.mote.show()
 
         self.showMessage("Lights Finished")
-
         self.completeRepeats += 1
 
-        if self.builder.tkvariables.__getitem__('bControlCamera').get():
+        if self.bControlCamera:
             while self.bCameraBusy:
                 pass
 
-        message = "Show "+str(self.completeRepeats + 1) + "/"+str(self.intRepeats)+" Complete in "+str(time.time() - self.startTime)+"s"
+        message = "Show "+str(self.completeRepeats) + "/"+str(self.iRepeats)+" Complete in "+str(time.time() - self.startTime)+"s"
         self.showMessage(message)
-
 
         try:
             self.im.seek(self.im.tell()+1)
@@ -354,12 +356,11 @@ class MyApplication:
         except EOFError:
             pass
 
-
-        if(self.completeRepeats < self.intRepeats):
+        if(self.completeRepeats < self.iRepeats):
             self.singleShow()
 
     def startPhoto(self):
-        if self.builder.tkvariables.__getitem__('bControlCamera').get():
+        if self.bControlCamera:
             thread.start_new_thread ( self.takePhoto , ())
 
     def show(self):
@@ -367,7 +368,7 @@ class MyApplication:
         if self.simulate:
             message = "Simulating"
         else:
-            message = "Show "+str(self.completeRepeats+1)+"/"+str(self.intRepeats)+" started"
+            message = "Show "+str(self.completeRepeats+1)+"/"+str(self.iRepeats)+" started"
         self.showMessage(message)
         duration = float(self.scaDuration.get())
         self.stepTime = int(1000 * duration / float(self.timeSlices))
@@ -395,35 +396,30 @@ class MyApplication:
 
             self.showColumn(thisColumn)
 
-
         else:
             self.onShowEnd()
-
-
-
         self.currentColumn += 1
-
 
     def showMessage(self, message):
         self.builder.tkvariables.__getitem__('messageText').set(message)
 
     def on_btnDraw_clicked(self, event=None):
-        if self.currentColumn == self.graphWidth:
+        if (self.currentColumn > 0  and self.currentColumn < self.graphWidth) or self.bCameraBusy:
             self.showMessage("Cannot start now, still running")
             return False
-        self.intRepeats = int(self.builder.tkvariables.__getitem__('intRepeats').get())
+            
+        self.updateParams()
         self.completeRepeats = 0
         self.singleShow()
 
     def drawCountdown(self):
-        delayTime = self.scaDelay.get()
-        i = delayTime - self.delayRemaining
+        i = self.iFullDelay - self.delayRemaining
         width = self.graphWidth
-        if delayTime > 0:
-            width = i * self.graphWidth/delayTime
+        if self.iFullDelay > 0:
+            width = i * self.graphWidth/self.iFullDelay
 
         self.canPreview.create_rectangle(0, 0, width, (len(self.yToStick) * self.motePixelInSceenPixels), fill="#000")
-        message = "Show "+str(self.completeRepeats+1)+"/"+str(self.intRepeats)+" starts in "+str(self.delayRemaining)
+        message = "Show "+str(self.completeRepeats+1)+"/"+str(self.iRepeats)+" starts in "+str(self.delayRemaining)
         self.canPreview.itemconfigure(self.countdown_id, text=message)
         self.showMessage(message)
 
@@ -438,17 +434,22 @@ class MyApplication:
 
         self.canPreview.create_rectangle(0, 0, self.graphWidth, (len(self.yToStick) * self.motePixelInSceenPixels), fill="#AAA")
         self.countdown_id = self.canPreview.create_text(100, self.graphWidth -100, fill="#F00", text=".....")
-
-        self.delayRemaining = self.scaDelay.get()
+        
+        delayTime = self.scaDelay.get()
+        
+        lag = 0
+        if self.bControlCamera:
+            lag = self.cameraLag
+            
+        #Start the countdown including the lag
+        self.iFullDelay = delayTime + lag
+        self.delayRemaining = self.iFullDelay
         self.drawCountdown()
 
-        delayTime = self.scaDelay.get()
+        #start the camera shot after the delay without the lag
         self.mainwindow.after(delayTime*1000, self.startPhoto)
-
-        lag = 0
-        if self.builder.tkvariables.__getitem__('bControlCamera').get():
-            lag = self.cameraLag
-
+        
+        #start the show after waiting for delay & lag
         self.mainwindow.after((delayTime + lag) *1000, self.show)
 
     def run(self):

@@ -51,6 +51,7 @@
         <property name="orient">horizontal</property>
         <property name="showvalue">true</property>
         <property name="to">20</property>
+        <property name="variable">int:iDelay</property>
         <layout>
           <property name="column">0</property>
           <property name="columnspan">3</property>
@@ -67,7 +68,7 @@
         <property name="length">320</property>
         <property name="orient">horizontal</property>
         <property name="to">20</property>
-        <property name="variable">string:intDuration</property>
+        <property name="variable">int:iDuration</property>
         <layout>
           <property name="column">0</property>
           <property name="columnspan">3</property>
@@ -142,7 +143,7 @@
         <property name="length">150</property>
         <property name="orient">horizontal</property>
         <property name="to">20</property>
-        <property name="variable">string:intRepeats</property>
+        <property name="variable">int:iRepeats</property>
         <layout>
           <property name="column">0</property>
           <property name="columnspan">3</property>
@@ -253,11 +254,11 @@
     <child>
       <object class="tk.Checkbutton" id="cheFromLeft">
         <property name="command">drawPreview</property>
-        <property name="offvalue">1</property>
-        <property name="onvalue">0</property>
+        <property name="offvalue">0</property>
+        <property name="onvalue">1</property>
         <property name="state">normal</property>
-        <property name="text" translatable="yes">From Right</property>
-        <property name="tristatevalue">1</property>
+        <property name="text" translatable="yes">Paint From Left</property>
+        <property name="tristatevalue">0</property>
         <property name="variable">boolean:bPaintFromLeft</property>
         <layout>
           <property name="column">0</property>

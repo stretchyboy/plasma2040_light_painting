@@ -68,6 +68,7 @@ class MyApplication:
         self.bReverseImage = False
         self.bGradient = False
         self.bPaintWhite = False
+        self.bTranspose = False
         
         self.iDuration = 5
         self.iRepeats = 1
@@ -166,7 +167,11 @@ class MyApplication:
 
     def quit(self, event=None):
         self.mainwindow.quit()
-
+    
+    def reloadImage(self):
+        self.mode = MODE_IMAGE
+        self.drawPreview()
+      
     def loadImage(self):
         filename = self.filename
         self.im = Image.open(filename)
@@ -190,7 +195,8 @@ class MyApplication:
         color = askcolor(self.color)
         if(color[0] == None):
             return
-        self.mode = MODE_COLOR
+        if self.bTranspose == False:
+            self.mode = MODE_COLOR
         self.color = color[0]
         self.drawPreview()
 
@@ -246,6 +252,9 @@ class MyApplication:
                         channel, pixel= self.yToStick[py]
                         if colour != (0, 0, 0) and (self.bPaintWhite or colour != (255, 255, 255)):
                             self.mote.set_pixel(channel, pixel, r, g, b)
+                        elif self.bTranspose and colour == (0, 0, 0):
+                            r, g, b = self.getColColour(iImageX)
+                            self.mote.set_pixel(channel, pixel, r, g, b)
                         else:
                             self.mote.set_pixel(channel, pixel, 0, 0, 0)
 
@@ -264,6 +273,7 @@ class MyApplication:
         self.builder.tkvariables.__getitem__('iDuration').set(self.iDuration)
         self.builder.tkvariables.__getitem__('iRepeats').set(self.iRepeats)
         self.builder.tkvariables.__getitem__('bControlCamera').set(self.bControlCamera)
+        self.builder.tkvariables.__getitem__('bTranspose').set(self.bTranspose)
         self.scaDelay.set(self.iDelay)
         
 
@@ -277,6 +287,7 @@ class MyApplication:
         self.iDuration = self.builder.tkvariables.__getitem__('iDuration').get()
         self.iRepeats = self.builder.tkvariables.__getitem__('iRepeats').get()
         self.bControlCamera = self.builder.tkvariables.__getitem__('bControlCamera').get()
+        self.bTranspose = self.builder.tkvariables.__getitem__('bTranspose').get()
         self.iDelay = self.scaDelay.get()
         
 
@@ -322,6 +333,11 @@ class MyApplication:
                 if colour != (0, 0, 0) and (self.bPaintWhite or colour != (255, 255, 255)):
                     color = str(webcolors.rgb_to_hex(colour))
                     self.canPreview.create_rectangle( iPreviewX, (py * self.motePixelInSceenPixels), iPreviewXend, (py * self.motePixelInSceenPixels) + self.motePixelInSceenPixels, width=0, fill=color)
+                elif self.bTranspose and colour == (0, 0, 0):
+                    colour2 = self.getColColour(iImageX)
+                    color2 = str(webcolors.rgb_to_hex(colour2))
+                    self.canPreview.create_rectangle( iPreviewX, (py * self.motePixelInSceenPixels), iPreviewXend, (py * self.motePixelInSceenPixels) + self.motePixelInSceenPixels, width=0, fill=color2)
+                        
 
     def doPreview(self, event=None):
         self.drawPreview()
@@ -427,7 +443,6 @@ class MyApplication:
         if self.delayRemaining > 0:
             self.mainwindow.after(1000, self.drawCountdown)
 
-
     def singleShow(self):
         if self.simulate:
             self.connectToMote()
@@ -447,10 +462,10 @@ class MyApplication:
         self.drawCountdown()
 
         #start the camera shot after the delay without the lag
-        self.mainwindow.after(delayTime*1000, self.startPhoto)
+        self.mainwindow.after(delayTime * 1000, self.startPhoto)
         
         #start the show after waiting for delay & lag
-        self.mainwindow.after((delayTime + lag) *1000, self.show)
+        self.mainwindow.after((delayTime + lag) * 1000, self.show)
 
     def run(self):
         self.mainwindow.mainloop()

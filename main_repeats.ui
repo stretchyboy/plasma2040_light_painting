@@ -155,7 +155,7 @@
     </child>
     <child>
       <object class="ttk.Button" id="btnReload">
-        <property name="command">loadImage</property>
+        <property name="command">reloadImage</property>
         <property name="text" translatable="yes">Reload</property>
         <layout>
           <property name="column">2</property>
@@ -193,6 +193,7 @@
         <property name="command">gradientChanged</property>
         <property name="offvalue">0</property>
         <property name="onvalue">1</property>
+        <property name="text" translatable="yes">Gradient</property>
         <property name="tristatevalue">0</property>
         <property name="variable">boolean:bGradient</property>
         <layout>
@@ -264,6 +265,20 @@
           <property name="column">0</property>
           <property name="propagate">True</property>
           <property name="row">12</property>
+        </layout>
+      </object>
+    </child>
+    <child>
+      <object class="tk.Checkbutton" id="cheTranspose">
+        <property name="command">drawPreview</property>
+        <property name="offvalue">0</property>
+        <property name="onvalue">1</property>
+        <property name="text" translatable="yes">Transpose</property>
+        <property name="variable">boolean:bTranspose</property>
+        <layout>
+          <property name="column">1</property>
+          <property name="propagate">True</property>
+          <property name="row">8</property>
         </layout>
       </object>
     </child>

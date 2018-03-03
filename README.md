@@ -82,5 +82,4 @@ sudo ./mote_light_painting.py
   * The Draw process "Repeats" until it should end
   * On the last repeat, if 'Control Camera' is selected the image should pop up in a photo viewer
 
-
-
+![Running](demos/running.gif)

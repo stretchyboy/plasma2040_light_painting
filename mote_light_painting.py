@@ -106,6 +106,7 @@ class MyApplication:
         self.chePaintWhite = builder.get_object('chePaintWhite')
 
         self.connectToMote()
+        
         self.iPixels = len(self.yToStick)
         
         self.updateControls()
@@ -135,6 +136,9 @@ class MyApplication:
             self.mote = Mote()
             self.simulate = False
             self.showMessage("Connected")
+            if not self.simulate :
+                self.mote.clear()
+                self.mote.show()
         except IOError:
             self.simulate = True
             self.showMessage("Simulating")
@@ -169,11 +173,14 @@ class MyApplication:
         return 0
 
     def quit(self, event=None):
+        if not self.simulate :
+            self.mote.clear()
+            self.mote.show()
         self.mainwindow.quit()
     
     def reloadImage(self):
         self.mode = MODE_IMAGE
-        self.drawPreview()
+        self.loadImage()
       
     def loadImage(self):
         filename = self.filename

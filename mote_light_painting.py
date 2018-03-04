@@ -78,14 +78,9 @@ class MyApplication:
         screen_height = gtk.gdk.screen_height()
 
         #2: Load an ui file
-        if(screen_width > 500):
-            builder.add_from_file(os.path.join(CURRENT_DIR, 'main_repeats.ui'))
-            self.motePixelInSceenPixels = 2
-        else:
-            builder.add_from_file(os.path.join(CURRENT_DIR, 'main_repeats2.ui'))
-
-            self.doQuick = True
-
+        builder.add_from_file(os.path.join(CURRENT_DIR, 'main_repeats.ui'))
+        self.motePixelInSceenPixels = 2
+        
         #3: Create the toplevel widget.
         self.mainwindow = builder.get_object('mainwindow')
 

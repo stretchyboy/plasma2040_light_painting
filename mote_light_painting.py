@@ -150,6 +150,7 @@ class MyApplication:
         self.addStick(4)
 
     def takePhoto(self):
+        # TODO : put in try on fail self.bCameraBusy = False
         logging.basicConfig(
             format='%(levelname)s: %(name)s: %(message)s', level=logging.WARNING)
         self.bCameraBusy = True
@@ -376,11 +377,22 @@ class MyApplication:
         try:
             self.im.seek(self.im.tell()+1)
             self.rgb_im = self.im.convert('RGB').resize((self.timeSlices, len(self.yToStick)))
-
+            #print("Loaded frame", self.im.tell())
             self.showMessage("Loaded next frame")
             self.drawPreview()
         except EOFError:
-            pass
+            try:
+                if (self.im.tell() > 0):
+                    self.im.seek(0)
+                    self.rgb_im = self.im.convert('RGB').resize((self.timeSlices, len(self.yToStick)))
+                    print("Animation Looped")
+            except:
+                if (self.im.tell() > 0):
+                    self.im = Image.open(self.filename)
+                    self.rgb_im = self.im.convert('RGB').resize((self.timeSlices, len(self.yToStick)))
+                    print("Could not loop - Reloaded")
+        
+                
 
         if(self.completeRepeats < self.iRepeats):
             self.singleShow()

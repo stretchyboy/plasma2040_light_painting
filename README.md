@@ -42,7 +42,7 @@ So far being built for :-
 * Screws to attach Mote sticks to the stick
 * If using Raspberry Pi - USB Battery Pack
 
-![Squigy Thingy](demos/Squigy%20Thingy.JPG)
+![Running](demos/running.gif)
 
 ## Usage
 
@@ -82,4 +82,4 @@ sudo ./mote_light_painting.py
   * The Draw process "Repeats" until it should end
   * On the last repeat, if 'Control Camera' is selected the image should pop up in a photo viewer
 
-![Running](demos/running.gif)
+

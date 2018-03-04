@@ -15,7 +15,7 @@ Inspired by
 ### Software
 
 ```bash
-sudo aptitude install gphoto2 libgphoto2-dev git python-pip python-tk python-gtk2
+sudo aptitude install gphoto2 libgphoto2-dev git python-pip python-tk python-gtk2 sox
 
 sudo pip install webcolors pillow pygubu mote gphoto2
 

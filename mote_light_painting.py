@@ -186,7 +186,7 @@ class MyApplication:
         targetWidth = int(fAspect * len(self.yToStick) * self.motePixelInCm)
         message = "Opened \""+os.path.basename(filename) + "\" "+str(targetWidth)+"cm wide"
         self.showMessage(message)
-        self.rgb_im = self.im.convert('RGB').resize((self.timeSlices, len(self.yToStick)))
+        self.rgb_im = self.im.convert('RGB').resize((self.timeSlices, len(self.yToStick)), Image.NEAREST)
         self.width, self.height = self.rgb_im.size
         if(self.mode == MODE_IMAGE):
             self.drawPreview()
@@ -256,13 +256,17 @@ class MyApplication:
                         r, g, b = self.rgb_im.getpixel((iImageX, py))
                         colour = (r, g, b)
                         channel, pixel= self.yToStick[py]
-                        if colour != (0, 0, 0) and (self.bPaintWhite or colour != (255, 255, 255)):
-                            self.mote.set_pixel(channel, pixel, r, g, b)
-                        elif self.bTranspose and colour == (0, 0, 0):
-                            r, g, b = self.getColColour(iImageX)
-                            self.mote.set_pixel(channel, pixel, r, g, b)
+                        if self.bTranspose:
+                            if colour == (0, 0, 0):
+                                r, g, b = self.getColColour(iImageX)
+                                self.mote.set_pixel(channel, pixel, r, g, b)
+                            else:
+                                self.mote.set_pixel(channel, pixel, 0, 0, 0)
                         else:
-                            self.mote.set_pixel(channel, pixel, 0, 0, 0)
+                            if colour != (0, 0, 0) and (self.bPaintWhite or colour != (255, 255, 255)):
+                                self.mote.set_pixel(channel, pixel, r, g, b)
+                            else:
+                                self.mote.set_pixel(channel, pixel, 0, 0, 0)
 
                     self.mote.show()
                 except IOError:
@@ -336,13 +340,16 @@ class MyApplication:
             #for py in range(0, len(self.yToStick)):
             for py in range(0, self.iPixels):
                 colour = self.rgb_im.getpixel((iImageX, py))
-                if colour != (0, 0, 0) and (self.bPaintWhite or colour != (255, 255, 255)):
-                    color = str(webcolors.rgb_to_hex(colour))
-                    self.canPreview.create_rectangle( iPreviewX, (py * self.motePixelInSceenPixels), iPreviewXend, (py * self.motePixelInSceenPixels) + self.motePixelInSceenPixels, width=0, fill=color)
-                elif self.bTranspose and colour == (0, 0, 0):
-                    colour2 = self.getColColour(iImageX)
-                    color2 = str(webcolors.rgb_to_hex(colour2))
-                    self.canPreview.create_rectangle( iPreviewX, (py * self.motePixelInSceenPixels), iPreviewXend, (py * self.motePixelInSceenPixels) + self.motePixelInSceenPixels, width=0, fill=color2)
+                if self.bTranspose :
+                    if colour == (0, 0, 0):
+                      colour2 = self.getColColour(iImageX)
+                      color2 = str(webcolors.rgb_to_hex(colour2))
+                      self.canPreview.create_rectangle( iPreviewX, (py * self.motePixelInSceenPixels), iPreviewXend, (py * self.motePixelInSceenPixels) + self.motePixelInSceenPixels, width=0, fill=color2)
+                else: 
+                    if colour != (0, 0, 0) and (self.bPaintWhite or colour != (255, 255, 255)):
+                        color = str(webcolors.rgb_to_hex(colour))
+                        self.canPreview.create_rectangle( iPreviewX, (py * self.motePixelInSceenPixels), iPreviewXend, (py * self.motePixelInSceenPixels) + self.motePixelInSceenPixels, width=0, fill=color)
+                
                         
 
     def doPreview(self, event=None):

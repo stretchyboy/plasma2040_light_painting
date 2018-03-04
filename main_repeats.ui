@@ -233,6 +233,7 @@
           <property name="column">2</property>
           <property name="propagate">True</property>
           <property name="row">12</property>
+          <property name="sticky">w</property>
         </layout>
       </object>
     </child>
@@ -265,20 +266,37 @@
           <property name="column">0</property>
           <property name="propagate">True</property>
           <property name="row">12</property>
+          <property name="sticky">w</property>
         </layout>
       </object>
     </child>
     <child>
-      <object class="tk.Checkbutton" id="cheTranspose">
+      <object class="tk.Checkbutton" id="cheInvert">
         <property name="command">drawPreview</property>
         <property name="offvalue">0</property>
         <property name="onvalue">1</property>
-        <property name="text" translatable="yes">Transpose</property>
-        <property name="variable">boolean:bTranspose</property>
+        <property name="text" translatable="yes">Paint Black as...</property>
+        <property name="variable">boolean:bInvert</property>
         <layout>
-          <property name="column">1</property>
+          <property name="column">0</property>
           <property name="propagate">True</property>
-          <property name="row">8</property>
+          <property name="row">10</property>
+          <property name="sticky">w</property>
+        </layout>
+      </object>
+    </child>
+    <child>
+      <object class="tk.Checkbutton" id="cheTween">
+        <property name="command">drawPreview</property>
+        <property name="offvalue">0</property>
+        <property name="onvalue">1</property>
+        <property name="text" translatable="yes">Tween</property>
+        <property name="variable">boolean:bTween</property>
+        <layout>
+          <property name="column">2</property>
+          <property name="propagate">True</property>
+          <property name="row">10</property>
+          <property name="sticky">w</property>
         </layout>
       </object>
     </child>

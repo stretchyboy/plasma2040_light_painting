@@ -59,13 +59,15 @@ sudo ./mote_light_painting.py
 * A message displays how wide the image should be (in cm)
 * The Graph shows your image as 64 pixels (the height of a full set of motes) over the draw time (so it will usually look stretched, don't worry its a graph) 
 * We often end up needing to ignore pure white pixels, if you need them painting check the 'Paint White ?' box.
-* The "Transpose" takes black and paints it as the current "Colour" lets you paint silhouettes as light
+* "Colour" lets you choose a single colour to paint with.
+* "End Colour" and the tick box allow you to set a changing colour pattern
+* The "Paint Black as..." takes black and paints it as the current "Colour" lets you paint silhouettes as light
+* The "Tween" will vary the colour painted from "Colour" to "End Colour" over the Repeats.
 * Ticking 'Control Camera' will try to capture a photo from you USB / PTP camera via gphoto2 (there is no error checking here at the mo, so if it freezes start again).
 * "Delay Time" is self explanatory.
 * "Draw Time" is how long it will take for your image to be drawn and will depend on the exposure time you are using.
 * "Repeats" set how many times the Delay/Draw cycle takes place. This should allow for nice light painted / stop motion effects.
-* "Colour" lets you choose a single colour to paint with.
-* "End Colour" and the tick box allow you to set a changing colour pattern
+
 * The "Pixels" slider lets you change the height of your light brush.
 * Orientation controls
   * "Paint From Left" - The painting starts on the painters left (this should not effect the orientation of the painted image) 

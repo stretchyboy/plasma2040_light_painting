@@ -55,6 +55,7 @@ class MyApplication:
         self.currentColumn = 0
         self.simulate = False
         self.animate = False
+        self.completeRepeats = 0
         self.motePixelInCm = 1
         self.mode = MODE_IMAGE
         self.color = (255, 0, 0)
@@ -68,7 +69,8 @@ class MyApplication:
         self.bReverseImage = False
         self.bGradient = False
         self.bPaintWhite = False
-        self.bTranspose = False
+        self.bInvert = False
+        self.bTween = False
         
         self.iDuration = 5
         self.iRepeats = 1
@@ -201,7 +203,7 @@ class MyApplication:
         color = askcolor(self.color)
         if(color[0] == None):
             return
-        if self.bTranspose == False:
+        if self.bInvert == False:
             self.mode = MODE_COLOR
         self.color = color[0]
         self.drawPreview()
@@ -235,7 +237,10 @@ class MyApplication:
         if not self.simulate :
             if (self.mode == MODE_COLOR):
                 try:
-                    r, g, b = self.getColColour(iImageX)
+                    if self.bTween:
+                        r, g, b = self.getFrameColour()
+                    else:
+                        r, g, b = self.getColColour(iImageX)
                     colour = (r, g, b)
                     for py in range(0, self.iPixels):
                         channel, pixel= self.yToStick[py]
@@ -256,9 +261,12 @@ class MyApplication:
                         r, g, b = self.rgb_im.getpixel((iImageX, py))
                         colour = (r, g, b)
                         channel, pixel= self.yToStick[py]
-                        if self.bTranspose:
+                        if self.bInvert:
                             if colour == (0, 0, 0):
-                                r, g, b = self.getColColour(iImageX)
+                                if self.bTween:
+                                    r, g, b = self.getFrameColour()
+                                else:
+                                    r, g, b = self.getColColour(iImageX)
                                 self.mote.set_pixel(channel, pixel, r, g, b)
                             else:
                                 self.mote.set_pixel(channel, pixel, 0, 0, 0)
@@ -283,7 +291,8 @@ class MyApplication:
         self.builder.tkvariables.__getitem__('iDuration').set(self.iDuration)
         self.builder.tkvariables.__getitem__('iRepeats').set(self.iRepeats)
         self.builder.tkvariables.__getitem__('bControlCamera').set(self.bControlCamera)
-        self.builder.tkvariables.__getitem__('bTranspose').set(self.bTranspose)
+        self.builder.tkvariables.__getitem__('bInvert').set(self.bInvert)
+        self.builder.tkvariables.__getitem__('bTween').set(self.bTween)
         self.scaDelay.set(self.iDelay)
         
 
@@ -297,7 +306,8 @@ class MyApplication:
         self.iDuration = self.builder.tkvariables.__getitem__('iDuration').get()
         self.iRepeats = self.builder.tkvariables.__getitem__('iRepeats').get()
         self.bControlCamera = self.builder.tkvariables.__getitem__('bControlCamera').get()
-        self.bTranspose = self.builder.tkvariables.__getitem__('bTranspose').get()
+        self.bInvert = self.builder.tkvariables.__getitem__('bInvert').get()
+        self.bTween = self.builder.tkvariables.__getitem__('bTween').get()
         self.iDelay = self.scaDelay.get()
         
 
@@ -306,7 +316,11 @@ class MyApplication:
         iPreviewX = self.getPreviewX(x)
         iPreviewXend = self.getPreviewX(x+1)
         if (self.mode == MODE_COLOR):
-            color = str(webcolors.rgb_to_hex(self.getColColour(iImageX)))
+            if self.bTween:
+                colour = self.getFrameColour()
+            else:
+                colour = self.getColColour(iImageX)
+            color = str(webcolors.rgb_to_hex(colour))
             self.canPreview.create_rectangle( iPreviewX, 0, iPreviewXend, (len(self.yToStick) * self.motePixelInSceenPixels), width=0, fill=color)
         if (self.mode == MODE_IMAGE):
             r, g, b = self.rgb_im.getpixel((iImageX, 1))
@@ -320,29 +334,44 @@ class MyApplication:
             g = int(round(self.color[1] + float(self.colorend[1] - self.color[1])*(float(px) / float(self.graphWidth))))
             b = int(round(self.color[2] + float(self.colorend[2] - self.color[2])*(float(px) / float(self.graphWidth))))
             return (r,g,b)
-
         return self.color
-
-
-
+        
+    def getFrameColour(self):
+        if(self.iRepeats > 1):
+            j = self.completeRepeats
+            r = int(round(self.color[0] + float(self.colorend[0] - self.color[0])*(float(j) / float(self.iRepeats-1))))
+            g = int(round(self.color[1] + float(self.colorend[1] - self.color[1])*(float(j) / float(self.iRepeats-1))))
+            b = int(round(self.color[2] + float(self.colorend[2] - self.color[2])*(float(j) / float(self.iRepeats-1))))
+            return (r,g,b)
+        return self.color
+        
+      
     def drawColumn(self, x):
         iImageX = self.getImageX(x)
         iPreviewX = self.getPreviewX(x)
         iPreviewXend = self.getPreviewX(x+1)
 
         if (self.mode == MODE_COLOR):
-            colour = self.getColColour(iImageX)
-            if colour != (0, 0, 0) and (self.bPaintWhite or colour != (255, 255, 255)):
+            if self.bTween:
+                colour = self.getFrameColour()
                 color = str(webcolors.rgb_to_hex(colour))
                 self.canPreview.create_rectangle( iPreviewX, 0, iPreviewXend, (self.iPixels * self.motePixelInSceenPixels), width=0, fill=color)
+            else:
+                colour = self.getColColour(iImageX)
+                if colour != (0, 0, 0) and (self.bPaintWhite or colour != (255, 255, 255)):
+                    color = str(webcolors.rgb_to_hex(colour))
+                    self.canPreview.create_rectangle( iPreviewX, 0, iPreviewXend, (self.iPixels * self.motePixelInSceenPixels), width=0, fill=color)
 
         if (self.mode == MODE_IMAGE):
             #for py in range(0, len(self.yToStick)):
             for py in range(0, self.iPixels):
                 colour = self.rgb_im.getpixel((iImageX, py))
-                if self.bTranspose :
+                if self.bInvert :
                     if colour == (0, 0, 0):
-                      colour2 = self.getColColour(iImageX)
+                      if self.bTween:
+                          colour2 = self.getFrameColour()
+                      else:
+                          colour2 = self.getColColour(iImageX)
                       color2 = str(webcolors.rgb_to_hex(colour2))
                       self.canPreview.create_rectangle( iPreviewX, (py * self.motePixelInSceenPixels), iPreviewXend, (py * self.motePixelInSceenPixels) + self.motePixelInSceenPixels, width=0, fill=color2)
                 else: 
@@ -392,12 +421,12 @@ class MyApplication:
                 if (self.im.tell() > 0):
                     self.im = Image.open(self.filename)
                     self.rgb_im = self.im.convert('RGB').resize((self.timeSlices, len(self.yToStick)))
-                    print("Could not loop - Reloaded")
-        
-                
+                    print("Could not loop - Reloaded")        
 
         if(self.completeRepeats < self.iRepeats):
             self.singleShow()
+        else:
+            self.completeRepeats = 0 
 
     def startPhoto(self):
         if self.bControlCamera:

@@ -65,7 +65,7 @@ class MyApplication:
         self.bReverseImage = False
         self.bGradient = False
         self.bPaintWhite = False
-        self.bInvert = False
+        self.bPaintBlack = False
         self.bTween = False
         
         self.bLines = False
@@ -207,7 +207,7 @@ class MyApplication:
         color = askcolor(self.color)
         if(color[0] == None):
             return
-        if self.bInvert == False:
+        if self.bPaintBlack == False:
             self.mode = MODE_COLOR
         self.color = color[0]
         self.drawPreview()
@@ -264,7 +264,7 @@ class MyApplication:
         self.builder.tkvariables.__getitem__('iDuration').set(self.iDuration)
         self.builder.tkvariables.__getitem__('iRepeats').set(self.iRepeats)
         self.builder.tkvariables.__getitem__('bControlCamera').set(self.bControlCamera)
-        self.builder.tkvariables.__getitem__('bInvert').set(self.bInvert)
+        self.builder.tkvariables.__getitem__('bPaintBlack').set(self.bPaintBlack)
         self.builder.tkvariables.__getitem__('bTween').set(self.bTween)
         
         self.builder.tkvariables.__getitem__('bLines').set(self.bLines)
@@ -283,7 +283,7 @@ class MyApplication:
         self.iDuration = self.builder.tkvariables.__getitem__('iDuration').get()
         self.iRepeats = self.builder.tkvariables.__getitem__('iRepeats').get()
         self.bControlCamera = self.builder.tkvariables.__getitem__('bControlCamera').get()
-        self.bInvert = self.builder.tkvariables.__getitem__('bInvert').get()
+        self.bPaintBlack = self.builder.tkvariables.__getitem__('bPaintBlack').get()
         self.bTween = self.builder.tkvariables.__getitem__('bTween').get()
         
         self.bLines = self.builder.tkvariables.__getitem__('bLines').get()
@@ -324,7 +324,7 @@ class MyApplication:
         if color == (0, 0, 0):
             return self.aColorPixels[y][x]  
         else:
-            return color
+            return (0, 0, 0)
                         
     def makePixels(self):
         if self.bTween:
@@ -336,7 +336,7 @@ class MyApplication:
                 self.aColorPixels = [[self.getColColour(x) for x in range(self.width)] for y in range(self.height)]
             
         if (self.mode == MODE_IMAGE):
-            if self.bInvert :
+            if self.bPaintBlack :
                 self.aPixels = [[self.makeInvertedPixel(self.aImageValues[y][x],x,y) for x in range(self.width)] for y in range(self.height)]
                 
             else:
@@ -344,7 +344,7 @@ class MyApplication:
         else: 
             self.aRawPixels = self.aColorPixels
         
-        if self.bInvert == False :
+        if self.bPaintBlack == False :
             self.aPixels = [[self.transformThroughRandom(self.aRawPixels[y][x], x, y) for x in range(self.width)] for y in range(self.height)]
                 
     def drawColumn(self, x):

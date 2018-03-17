@@ -278,7 +278,7 @@
         <property name="offvalue">0</property>
         <property name="onvalue">1</property>
         <property name="text" translatable="yes">Paint Black as...</property>
-        <property name="variable">boolean:bInvert</property>
+        <property name="variable">boolean:bPaintBlack</property>
         <layout>
           <property name="column">0</property>
           <property name="propagate">True</property>

@@ -357,6 +357,8 @@ class MyApplication:
             if colour != (0, 0, 0) and (self.bPaintWhite or colour != (255, 255, 255)):
                 color = str(webcolors.rgb_to_hex(colour))
                 self.canPreview.create_rectangle( iPreviewX, (y * self.motePixelInSceenPixels), iPreviewXend, (y * self.motePixelInSceenPixels) + self.motePixelInSceenPixels, width=0, fill=color)
+        if self.bPaintBlack & (self.currentColumn > 0  and self.currentColumn < self.graphWidth):
+            self.canPreview.create_rectangle( iPreviewX, (0), iPreviewXend, self.motePixelInSceenPixels *5, width=0, fill="#0F0")
                 
     def doPreview(self, event=None):
         self.drawPreview()

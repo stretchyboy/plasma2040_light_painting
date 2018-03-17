@@ -86,7 +86,7 @@
           <property name="column">0</property>
           <property name="columnspan">3</property>
           <property name="propagate">True</property>
-          <property name="row">13</property>
+          <property name="row">14</property>
           <property name="sticky">nsew</property>
         </layout>
       </object>
@@ -200,6 +200,7 @@
           <property name="column">1</property>
           <property name="propagate">True</property>
           <property name="row">9</property>
+          <property name="sticky">w</property>
         </layout>
       </object>
     </child>
@@ -250,6 +251,7 @@
           <property name="column">1</property>
           <property name="propagate">True</property>
           <property name="row">12</property>
+          <property name="sticky">w</property>
         </layout>
       </object>
     </child>
@@ -296,6 +298,51 @@
           <property name="column">2</property>
           <property name="propagate">True</property>
           <property name="row">10</property>
+          <property name="sticky">w</property>
+        </layout>
+      </object>
+    </child>
+    <child>
+      <object class="tk.Checkbutton" id="cheLines">
+        <property name="command">changeRandom</property>
+        <property name="offvalue">0</property>
+        <property name="onvalue">1</property>
+        <property name="text" translatable="yes">Random Lines</property>
+        <property name="variable">boolean:bLines</property>
+        <layout>
+          <property name="column">0</property>
+          <property name="propagate">True</property>
+          <property name="row">13</property>
+          <property name="sticky">w</property>
+        </layout>
+      </object>
+    </child>
+    <child>
+      <object class="tk.Checkbutton" id="cheSpeckled">
+        <property name="command">changeRandom</property>
+        <property name="offvalue">0</property>
+        <property name="onvalue">1</property>
+        <property name="text" translatable="yes">Speckles</property>
+        <property name="variable">boolean:bSpeckles</property>
+        <layout>
+          <property name="column">1</property>
+          <property name="propagate">True</property>
+          <property name="row">13</property>
+          <property name="sticky">w</property>
+        </layout>
+      </object>
+    </child>
+    <child>
+      <object class="tk.Checkbutton" id="cheRange">
+        <property name="command">changeRandom</property>
+        <property name="offvalue">0</property>
+        <property name="onvalue">1</property>
+        <property name="text" translatable="yes">Range</property>
+        <property name="variable">boolean:bRandomAcrossRange</property>
+        <layout>
+          <property name="column">2</property>
+          <property name="propagate">True</property>
+          <property name="row">13</property>
           <property name="sticky">w</property>
         </layout>
       </object>

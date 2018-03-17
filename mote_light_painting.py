@@ -1,7 +1,6 @@
 #!/usr/bin/python
 from __future__ import print_function
 
-# File: toplevelminimal.py
 try:
     import thread
 except:
@@ -15,10 +14,6 @@ try:
 except:
     import Tkinter as tk
 
-#s=ttk.Style()
-#s.theme_use('clam')
-
-
 import pygubu
 from PIL import Image #PILLOW
 from tkColorChooser import askcolor
@@ -26,6 +21,7 @@ import webcolors
 import sys
 import time
 import functools
+import random
 
 import logging
 import os
@@ -34,13 +30,13 @@ import sys
 import gtk
 import re
 
-
 import gphoto2 as gp
 CURRENT_DIR = os.path.abspath(os.path.dirname(__file__))
 
-MODE_IMAGE = 1
-MODE_COLOR = 2
+MODE_IMAGE    = 1
+MODE_COLOR    = 2
 MODE_GRADIENT = 3
+MODE_RANDOM   = 4
 
 
 class MyApplication:
@@ -72,6 +68,10 @@ class MyApplication:
         self.bInvert = False
         self.bTween = False
         
+        self.bLines = False
+        self.bSpeckles = False
+        self.bRandomAcrossRange = False
+        
         self.iDuration = 5
         self.iRepeats = 1
         self.iDelay = 0
@@ -96,27 +96,26 @@ class MyApplication:
 
         self.scaDuration = builder.get_object('scaDuration')
 
-        self.scaRepeats = builder.get_object('scaRepeats')
-
-        self.cheControlCamera = builder.get_object('cheControlCamera')
-
-        self.chePaintWhite = builder.get_object('chePaintWhite')
-
         self.connectToMote()
         
         self.iPixels = len(self.yToStick)
         
+        self.aColourGrid = []
+        self.aRandomGrid = []
+        
         self.updateControls()
         self.filename = "images/Spectrum Vertical.png"
         self.loadImage()
-
+        
+        self.makeRandom()
+        
         builder.connect_callbacks(self)
 
     def beep(self, duration = 0.1):
         freq = 440  # Hz
         os.system('play --no-show-progress --null --channels 1 synth %s sine %f' % (duration, freq))
 
-    def addStick(self, channel, up=True, length=16, gammacorrect=True):  #from top
+    def addStick(self, channel, up=True, length=16, gammacorrect=True):    #from top
         if not self.simulate :
             self.mote.configure_channel(channel, length, gammacorrect)
         for i in range(length):
@@ -190,6 +189,11 @@ class MyApplication:
         self.showMessage(message)
         self.rgb_im = self.im.convert('RGB').resize((self.timeSlices, len(self.yToStick)), Image.NEAREST)
         self.width, self.height = self.rgb_im.size
+        
+        self.aImageValues = [[self.rgb_im.getpixel((x, y)) for x in range(self.width)] for y in range(self.height)]
+        
+        self.aRandomGrid = [[1 for x in range(self.width)] for y in range(self.height)]
+        
         if(self.mode == MODE_IMAGE):
             self.drawPreview()
 
@@ -235,51 +239,20 @@ class MyApplication:
     def showColumn(self, x):
         iImageX = self.getImageX(x)
         if not self.simulate :
-            if (self.mode == MODE_COLOR):
-                try:
-                    if self.bTween:
-                        r, g, b = self.getFrameColour()
+            try:
+                for y in range(0, self.iPixels):
+                    colour = self.aPixels[y][x]
+                    channel, pixel= self.yToStick[y]
+                    if colour != (0, 0, 0) and (self.bPaintWhite or colour != (255, 255, 255)):
+                        r,g,b = colour
+                        self.mote.set_pixel(channel, pixel, r, g, b)
                     else:
-                        r, g, b = self.getColColour(iImageX)
-                    colour = (r, g, b)
-                    for py in range(0, self.iPixels):
-                        channel, pixel= self.yToStick[py]
-                        if colour != (0, 0, 0) and (self.bPaintWhite or colour != (255, 255, 255)):
-                            self.mote.set_pixel(channel, pixel, r, g, b)
-                        else:
-                            self.mote.set_pixel(channel, pixel, 0, 0, 0)
+                        self.mote.set_pixel(channel, pixel, 0, 0, 0)
 
-                    self.mote.show()
-                except IOError:
-                    self.simulate = True
-                    self.showMessage("Connection Failed. Simulating")
-
-            if (self.mode == MODE_IMAGE):
-                try:
-                    #for py in range(0, self.height):
-                    for py in range(0, self.iPixels):
-                        r, g, b = self.rgb_im.getpixel((iImageX, py))
-                        colour = (r, g, b)
-                        channel, pixel= self.yToStick[py]
-                        if self.bInvert:
-                            if colour == (0, 0, 0):
-                                if self.bTween:
-                                    r, g, b = self.getFrameColour()
-                                else:
-                                    r, g, b = self.getColColour(iImageX)
-                                self.mote.set_pixel(channel, pixel, r, g, b)
-                            else:
-                                self.mote.set_pixel(channel, pixel, 0, 0, 0)
-                        else:
-                            if colour != (0, 0, 0) and (self.bPaintWhite or colour != (255, 255, 255)):
-                                self.mote.set_pixel(channel, pixel, r, g, b)
-                            else:
-                                self.mote.set_pixel(channel, pixel, 0, 0, 0)
-
-                    self.mote.show()
-                except IOError:
-                    self.simulate = True
-                    self.showMessage("Connection Failed. Simulating")
+                self.mote.show()
+            except IOError:
+                self.simulate = True
+                self.showMessage("Connection Failed. Simulating")
 
     def updateControls(self):
         self.builder.tkvariables.__getitem__('bGradient').set(self.bGradient)
@@ -293,8 +266,12 @@ class MyApplication:
         self.builder.tkvariables.__getitem__('bControlCamera').set(self.bControlCamera)
         self.builder.tkvariables.__getitem__('bInvert').set(self.bInvert)
         self.builder.tkvariables.__getitem__('bTween').set(self.bTween)
-        self.scaDelay.set(self.iDelay)
         
+        self.builder.tkvariables.__getitem__('bLines').set(self.bLines)
+        self.builder.tkvariables.__getitem__('bSpeckles').set(self.bSpeckles)
+        self.builder.tkvariables.__getitem__('bRandomAcrossRange').set(self.bRandomAcrossRange)
+        
+        self.scaDelay.set(self.iDelay)
 
     def updateParams(self):
         self.bGradient = self.builder.tkvariables.__getitem__('bGradient').get()
@@ -308,25 +285,12 @@ class MyApplication:
         self.bControlCamera = self.builder.tkvariables.__getitem__('bControlCamera').get()
         self.bInvert = self.builder.tkvariables.__getitem__('bInvert').get()
         self.bTween = self.builder.tkvariables.__getitem__('bTween').get()
-        self.iDelay = self.scaDelay.get()
         
-
-    def quickColumn(self, px):
-        iImageX = self.getImageX(x)
-        iPreviewX = self.getPreviewX(x)
-        iPreviewXend = self.getPreviewX(x+1)
-        if (self.mode == MODE_COLOR):
-            if self.bTween:
-                colour = self.getFrameColour()
-            else:
-                colour = self.getColColour(iImageX)
-            color = str(webcolors.rgb_to_hex(colour))
-            self.canPreview.create_rectangle( iPreviewX, 0, iPreviewXend, (len(self.yToStick) * self.motePixelInSceenPixels), width=0, fill=color)
-        if (self.mode == MODE_IMAGE):
-            r, g, b = self.rgb_im.getpixel((iImageX, 1))
-            colour = (r, g, b)
-            color = str(webcolors.rgb_to_hex(colour))
-            self.canPreview.create_rectangle( iPreviewX, 0, iPreviewXend, (len(self.yToStick) * self.motePixelInSceenPixels), width=0, fill=color)
+        self.bLines = self.builder.tkvariables.__getitem__('bLines').get()
+        self.bSpeckles = self.builder.tkvariables.__getitem__('bSpeckles').get()        
+        self.bRandomAcrossRange = self.builder.tkvariables.__getitem__('bRandomAcrossRange').get()
+        
+        self.iDelay = self.scaDelay.get()
 
     def getColColour(self, px):
         if(self.bGradient):
@@ -345,51 +309,98 @@ class MyApplication:
             return (r,g,b)
         return self.color
         
-      
+    def transformThroughRandom(self, color, x, y, base=(0,0,0)):
+        fMultiply = self.aRandomGrid[y][x]
+        if(fMultiply == False):
+            return (0,0,0)
+        else:
+            return (
+                int(round(fMultiply * float(color[0]-base[0])))+base[0], 
+                int(round(fMultiply * float(color[1]-base[1])))+base[1], 
+                int(round(fMultiply * float(color[2]-base[2])))+base[2]
+                )
+                            
+    def makeInvertedPixel(self, color,x,y,):
+        if color == (0, 0, 0):
+            return self.aColorPixels[y][x]  
+        else:
+            return color
+                        
+    def makePixels(self):
+        if self.bTween:
+            self.aColorPixels = [[self.getFrameColour() for x in range(self.width)] for y in range(self.height)]
+        else:
+            if self.bRandomAcrossRange:
+                self.aColorPixels = [[self.transformThroughRandom(self.colorend, x, y, self.color) for x in range(self.width)] for y in range(self.height)]
+            else:
+                self.aColorPixels = [[self.getColColour(x) for x in range(self.width)] for y in range(self.height)]
+            
+        if (self.mode == MODE_IMAGE):
+            if self.bInvert :
+                self.aPixels = [[self.makeInvertedPixel(self.aImageValues[y][x],x,y) for x in range(self.width)] for y in range(self.height)]
+                
+            else:
+                self.aRawPixels = self.aImageValues
+        else: 
+            self.aRawPixels = self.aColorPixels
+        
+        if self.bInvert == False :
+            self.aPixels = [[self.transformThroughRandom(self.aRawPixels[y][x], x, y) for x in range(self.width)] for y in range(self.height)]
+                
     def drawColumn(self, x):
         iImageX = self.getImageX(x)
         iPreviewX = self.getPreviewX(x)
         iPreviewXend = self.getPreviewX(x+1)
 
-        if (self.mode == MODE_COLOR):
-            if self.bTween:
-                colour = self.getFrameColour()
+        for y in range(0, self.iPixels):
+            colour = self.aPixels[y][x]
+            if colour != (0, 0, 0) and (self.bPaintWhite or colour != (255, 255, 255)):
                 color = str(webcolors.rgb_to_hex(colour))
-                self.canPreview.create_rectangle( iPreviewX, 0, iPreviewXend, (self.iPixels * self.motePixelInSceenPixels), width=0, fill=color)
-            else:
-                colour = self.getColColour(iImageX)
-                if colour != (0, 0, 0) and (self.bPaintWhite or colour != (255, 255, 255)):
-                    color = str(webcolors.rgb_to_hex(colour))
-                    self.canPreview.create_rectangle( iPreviewX, 0, iPreviewXend, (self.iPixels * self.motePixelInSceenPixels), width=0, fill=color)
-
-        if (self.mode == MODE_IMAGE):
-            #for py in range(0, len(self.yToStick)):
-            for py in range(0, self.iPixels):
-                colour = self.rgb_im.getpixel((iImageX, py))
-                if self.bInvert :
-                    if colour == (0, 0, 0):
-                      if self.bTween:
-                          colour2 = self.getFrameColour()
-                      else:
-                          colour2 = self.getColColour(iImageX)
-                      color2 = str(webcolors.rgb_to_hex(colour2))
-                      self.canPreview.create_rectangle( iPreviewX, (py * self.motePixelInSceenPixels), iPreviewXend, (py * self.motePixelInSceenPixels) + self.motePixelInSceenPixels, width=0, fill=color2)
-                else: 
-                    if colour != (0, 0, 0) and (self.bPaintWhite or colour != (255, 255, 255)):
-                        color = str(webcolors.rgb_to_hex(colour))
-                        self.canPreview.create_rectangle( iPreviewX, (py * self.motePixelInSceenPixels), iPreviewXend, (py * self.motePixelInSceenPixels) + self.motePixelInSceenPixels, width=0, fill=color)
+                self.canPreview.create_rectangle( iPreviewX, (y * self.motePixelInSceenPixels), iPreviewXend, (y * self.motePixelInSceenPixels) + self.motePixelInSceenPixels, width=0, fill=color)
                 
-                        
-
     def doPreview(self, event=None):
         self.drawPreview()
-
+    
+    def changeRandom(self):
+        self.updateParams()
+        self.makeRandom()
+        self.makePixels()
+        self.drawPreview()
+        
+          
     def drawPreview(self):
         self.updateParams()
+        self.makePixels()
         self.canPreview.create_rectangle(0, 0, self.graphWidth, (len(self.yToStick) * self.motePixelInSceenPixels), fill="black")
         for x in range(0, self.graphWidth):
             self.drawColumn(x)
-
+    
+    def makeRandom(self):
+        self.aRandomGrid = [[False for x in range(self.width)] for y in range(self.height)]
+        
+        for y in range(len(self.yToStick)):
+            if(self.bLines):
+                line = [random.randint(0, self.timeSlices), random.randint(0, self.timeSlices)]
+                line.sort()
+                start = line[0]
+                end = line[1]
+            else:
+                start = 0
+                end = self.timeSlices
+            
+            for x in range(0, self.timeSlices):
+                if(x >= start and x <= end):
+                    if(self.bSpeckles or self.bRandomAcrossRange):
+                        level = random.random()
+                    else:
+                        level = 1
+                    self.aRandomGrid[y][x]= level
+    
+    def refreshPixels(self):
+        self.aImageValues = [[self.rgb_im.getpixel((x, y)) for x in range(self.width)] for y in range(self.height)]
+        self.makePixels()
+    
+    
     def onShowEnd(self):
         if not self.simulate :
             self.mote.clear()
@@ -408,7 +419,7 @@ class MyApplication:
         try:
             self.im.seek(self.im.tell()+1)
             self.rgb_im = self.im.convert('RGB').resize((self.timeSlices, len(self.yToStick)))
-            #print("Loaded frame", self.im.tell())
+            self.refreshPixels()
             self.showMessage("Loaded next frame")
             self.drawPreview()
         except EOFError:
@@ -416,17 +427,23 @@ class MyApplication:
                 if (self.im.tell() > 0):
                     self.im.seek(0)
                     self.rgb_im = self.im.convert('RGB').resize((self.timeSlices, len(self.yToStick)))
+                    self.refreshPixels()
                     print("Animation Looped")
             except:
                 if (self.im.tell() > 0):
                     self.im = Image.open(self.filename)
                     self.rgb_im = self.im.convert('RGB').resize((self.timeSlices, len(self.yToStick)))
+                    self.refreshPixels()
                     print("Could not loop - Reloaded")        
 
         if(self.completeRepeats < self.iRepeats):
+            
             self.singleShow()
         else:
             self.completeRepeats = 0 
+        
+        self.makeRandom()
+        self.drawPreview()
 
     def startPhoto(self):
         if self.bControlCamera:
@@ -458,11 +475,7 @@ class MyApplication:
             self.targetTime += self.stepTimeS
             self.timer = self.mainwindow.after(1, self.doColumn)
 
-            if self.doQuick == True:
-                self.quickColumn(thisColumn)
-            else:
-                self.drawColumn(thisColumn)
-
+            self.drawColumn(thisColumn)
             self.showColumn(thisColumn)
 
         else:
@@ -487,8 +500,6 @@ class MyApplication:
         if self.iFullDelay > 0:
             width = i * self.graphWidth/self.iFullDelay
         
-        #print(i, self.iFullDelay,  self.delayRemaining, width)
-        
         self.canPreview.create_rectangle(0, 0, width, (len(self.yToStick) * self.motePixelInSceenPixels), fill="#000")
         message = "Show "+str(self.completeRepeats+1)+"/"+str(self.iRepeats)+" starts in "+str(self.delayRemaining)
         self.canPreview.itemconfigure(self.countdown_id, text=message)
@@ -497,7 +508,6 @@ class MyApplication:
         
         if self.delayRemaining <= 4 and self.delayRemaining > 1:
             self.beep(0.1)
-            #print("short")
         
         self.delayRemaining -= 1
         
@@ -505,7 +515,6 @@ class MyApplication:
             self.mainwindow.after(1000, self.drawCountdown)
         else:
           self.beep(0.3)
-          #print("long")
 
     def singleShow(self):
         if self.simulate:

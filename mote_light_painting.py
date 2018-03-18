@@ -38,7 +38,7 @@ MODE_COLOR    = 2
 MODE_GRADIENT = 3
 MODE_RANDOM   = 4
 
-gphoto2_command = 'gphoto2 --capture-image-and-download --filename "../LightPaintings/%Y%m%d-%H%M%S-%03n.%C"'
+gphoto2_command = 'gphoto2 --capture-image --filename "../LightPaintings/%Y%m%d-%H%M%S-%03n.%C"'
 
 
 class MyApplication:

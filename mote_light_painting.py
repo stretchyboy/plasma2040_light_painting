@@ -38,6 +38,8 @@ MODE_COLOR    = 2
 MODE_GRADIENT = 3
 MODE_RANDOM   = 4
 
+gphoto2_command = 'gphoto2 --capture-image-and-download --filename "../LightPaintings/%Y%m%d-%H%M%S-%03n.%C"'
+
 
 class MyApplication:
     def __init__(self):
@@ -145,8 +147,19 @@ class MyApplication:
         self.addStick(2)
         self.addStick(3)
         self.addStick(4)
-
+    
+    def takePhoto2(self):
+        self.bCameraBusy = True
+        
+        os.system(gphoto2_command)        
+        
+        self.bCameraBusy = False
+        return 0
+        
+    
+    
     def takePhoto(self):
+        return self.takePhoto2()
         # TODO : put in try on fail self.bCameraBusy = False
         logging.basicConfig(
             format='%(levelname)s: %(name)s: %(message)s', level=logging.WARNING)

@@ -4,6 +4,7 @@
     <property name="overrideredirect">False</property>
     <property name="resizable">none</property>
     <property name="title" translatable="yes">Mote Light Painting</property>
+    <bind add="True" handler="on_btnDraw_clicked" sequence="&lt;Key&gt;" />
     <child>
       <object class="tk.Label" id="labFilePath">
         <property name="text" translatable="yes">Choose a file:</property>

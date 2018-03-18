@@ -17,6 +17,8 @@ except:
 import pygubu
 from PIL import Image #PILLOW
 from tkColorChooser import askcolor
+from tkFileDialog import askopenfilename
+
 import webcolors
 import sys
 import time
@@ -90,8 +92,6 @@ class MyApplication:
         self.mainwindow = builder.get_object('mainwindow')
 
         self.canPreview = builder.get_object('canPreview')
-
-        self.pathFilePath = builder.get_object('pathFilePath')
 
         self.msgMessage = builder.get_object('msgMessage')
 
@@ -211,11 +211,12 @@ class MyApplication:
         if(self.mode == MODE_IMAGE):
             self.drawPreview()
 
-    def on_path_changed(self, event=None):
-        # Get the path choosed by the user
-        self.filename = self.pathFilePath.cget('path')
+        
+    def onFileChoose(self, event=None):
+        self.filename = askopenfilename(initialdir = "images/",title = "Select file",filetypes = (("gif files","*.gif"),("png files","*.png"),("jpeg files","*.jpg"),("all files","*.*")))
         self.mode = MODE_IMAGE
         self.loadImage()
+
 
     def getColor(self, event=None):
         color = askcolor(self.color)

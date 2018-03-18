@@ -160,7 +160,7 @@ class MyApplication:
     
     def takePhoto(self):
         return self.takePhoto2()
-        # TODO : put in try on fail self.bCameraBusy = False
+        
         logging.basicConfig(
             format='%(levelname)s: %(name)s: %(message)s', level=logging.WARNING)
         self.bCameraBusy = True

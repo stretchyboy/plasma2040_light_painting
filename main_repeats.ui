@@ -86,7 +86,7 @@
           <property name="column">0</property>
           <property name="columnspan">3</property>
           <property name="propagate">True</property>
-          <property name="row">14</property>
+          <property name="row">18</property>
           <property name="sticky">nsew</property>
         </layout>
       </object>
@@ -100,7 +100,7 @@
           <property name="column">0</property>
           <property name="columnspan">3</property>
           <property name="propagate">True</property>
-          <property name="row">15</property>
+          <property name="row">20</property>
           <property name="sticky">ew</property>
         </layout>
       </object>
@@ -227,13 +227,13 @@
         <property name="offvalue">0</property>
         <property name="onvalue">1</property>
         <property name="state">normal</property>
-        <property name="text" translatable="yes">Flip</property>
+        <property name="text" translatable="yes">Flip Horizontal</property>
         <property name="tristatevalue">0</property>
         <property name="variable">boolean:bReverseImage</property>
         <layout>
-          <property name="column">2</property>
+          <property name="column">0</property>
           <property name="propagate">True</property>
-          <property name="row">12</property>
+          <property name="row">14</property>
           <property name="sticky">w</property>
         </layout>
       </object>
@@ -248,7 +248,7 @@
         <property name="tristatevalue">0</property>
         <property name="variable">boolean:bFacingScreen</property>
         <layout>
-          <property name="column">1</property>
+          <property name="column">2</property>
           <property name="propagate">True</property>
           <property name="row">12</property>
           <property name="sticky">w</property>
@@ -312,7 +312,7 @@
         <layout>
           <property name="column">0</property>
           <property name="propagate">True</property>
-          <property name="row">13</property>
+          <property name="row">16</property>
           <property name="sticky">w</property>
         </layout>
       </object>
@@ -327,7 +327,7 @@
         <layout>
           <property name="column">1</property>
           <property name="propagate">True</property>
-          <property name="row">13</property>
+          <property name="row">16</property>
           <property name="sticky">w</property>
         </layout>
       </object>
@@ -342,7 +342,22 @@
         <layout>
           <property name="column">2</property>
           <property name="propagate">True</property>
-          <property name="row">13</property>
+          <property name="row">16</property>
+          <property name="sticky">w</property>
+        </layout>
+      </object>
+    </child>
+    <child>
+      <object class="tk.Checkbutton" id="cheFlipVertical">
+        <property name="command">drawPreview</property>
+        <property name="offvalue">0</property>
+        <property name="onvalue">1</property>
+        <property name="text" translatable="yes">Upsidedown</property>
+        <property name="variable">boolean:bFlipVertical</property>
+        <layout>
+          <property name="column">2</property>
+          <property name="propagate">True</property>
+          <property name="row">14</property>
           <property name="sticky">w</property>
         </layout>
       </object>

@@ -63,6 +63,7 @@ class MyApplication:
         self.bPaintFromLeft = True
         self.bFacingScreen = True
         self.bReverseImage = False
+        self.bFlipVertical = False
         self.bGradient = False
         self.bPaintWhite = False
         self.bPaintBlack = False
@@ -241,7 +242,11 @@ class MyApplication:
         if not self.simulate :
             try:
                 for y in range(0, self.iPixels):
-                    colour = self.aPixels[y][x]
+                    if(self.bFlipVertical):
+                        colour = self.aPixels[(self.iPixels-y)-1][x]
+                    else:
+                        colour = self.aPixels[y][x]
+                        
                     channel, pixel= self.yToStick[y]
                     if colour != (0, 0, 0) and (self.bPaintWhite or colour != (255, 255, 255)):
                         r,g,b = colour
@@ -270,6 +275,7 @@ class MyApplication:
         self.builder.tkvariables.__getitem__('bLines').set(self.bLines)
         self.builder.tkvariables.__getitem__('bSpeckles').set(self.bSpeckles)
         self.builder.tkvariables.__getitem__('bRandomAcrossRange').set(self.bRandomAcrossRange)
+        self.builder.tkvariables.__getitem__('bFlipVertical').set(self.bFlipVertical)
         
         self.scaDelay.set(self.iDelay)
 
@@ -289,6 +295,7 @@ class MyApplication:
         self.bLines = self.builder.tkvariables.__getitem__('bLines').get()
         self.bSpeckles = self.builder.tkvariables.__getitem__('bSpeckles').get()        
         self.bRandomAcrossRange = self.builder.tkvariables.__getitem__('bRandomAcrossRange').get()
+        self.bFlipVertical = self.builder.tkvariables.__getitem__('bFlipVertical').get()
         
         self.iDelay = self.scaDelay.get()
 

@@ -1,6 +1,8 @@
 #!/usr/bin/python
 from __future__ import print_function
 
+import cherrypy
+
 try:
     import thread
 except:
@@ -29,7 +31,6 @@ import logging
 import os
 import subprocess
 import sys
-import gtk
 import re
 
 import gphoto2 as gp
@@ -43,11 +44,11 @@ MODE_RANDOM   = 4
 gphoto2_command = 'gphoto2 --capture-image --filename "../LightPaintings/%Y%m%d-%H%M%S-%03n.%C"'
 
 
-class MyApplication:
-    def __init__(self):
-        #1: Create a builder
-        self.builder = builder = pygubu.Builder()
+class MoteLightPainting(object):
+    def __init__(self, gui=True, web=True):
+        
         self.doQuick = False
+        
         self.timeSlices = 320
         self.motePixelInSceenPixels = 1
         self.graphWidth = self.timeSlices
@@ -80,25 +81,16 @@ class MyApplication:
         self.iDuration = 5
         self.iRepeats = 1
         self.iDelay = 0
-
-        screen_width = gtk.gdk.screen_width()
-        screen_height = gtk.gdk.screen_height()
-
-        #2: Load an ui file
-        builder.add_from_file(os.path.join(CURRENT_DIR, 'main_repeats.ui'))
         self.motePixelInSceenPixels = 2
         
-        #3: Create the toplevel widget.
-        self.mainwindow = builder.get_object('mainwindow')
-
-        self.canPreview = builder.get_object('canPreview')
-
-        self.msgMessage = builder.get_object('msgMessage')
-
-        self.scaDelay = builder.get_object('scaDelay')
-
-        self.scaDuration = builder.get_object('scaDuration')
-
+        self.gui = gui
+        if(self.gui):
+          self.init_gui()
+          
+        self.web = web
+        if(self.web):
+          self.init_web()
+        
         self.connectToMote()
         
         self.iPixels = len(self.yToStick)
@@ -112,11 +104,37 @@ class MyApplication:
         
         self.makeRandom()
         
-        builder.connect_callbacks(self)
+    
+    def init_web(self):
+        print("Init Web")
+        if not os.path.exists("sessions"):
+            os.makedirs("sessions")
+        
+      
+    
+    def init_gui(self):
+        print("Init GUI")
+        #1: Create a builder
+        self.builder = builder = pygubu.Builder()
+        #2: Load an ui file
+        builder.add_from_file(os.path.join(CURRENT_DIR, 'main_repeats.ui'))
+        
+        self.mainwindow = builder.get_object('mainwindow')
 
+        self.canPreview = builder.get_object('canPreview')
+
+        self.msgMessage = builder.get_object('msgMessage')
+
+        self.scaDelay = builder.get_object('scaDelay')
+
+        self.scaDuration = builder.get_object('scaDuration')
+
+        builder.connect_callbacks(self)
+    
     def beep(self, duration = 0.1):
-        freq = 440  # Hz
-        os.system('play --no-show-progress --null --channels 1 synth %s sine %f' % (duration, freq))
+        if (self.gui):
+            freq = 440  # Hz
+            os.system('play --no-show-progress --null --channels 1 synth %s sine %f' % (duration, freq))
 
     def addStick(self, channel, up=True, length=16, gammacorrect=True):    #from top
         if not self.simulate :
@@ -506,7 +524,8 @@ class MyApplication:
         self.currentColumn += 1
 
     def showMessage(self, message):
-        self.builder.tkvariables.__getitem__('messageText').set(message)
+        if(self.gui):
+            self.builder.tkvariables.__getitem__('messageText').set(message)
 
     def on_btnDraw_clicked(self, event=None):
         if (self.currentColumn > 0  and self.currentColumn < self.graphWidth) or self.bCameraBusy:
@@ -564,8 +583,30 @@ class MyApplication:
         self.mainwindow.after((delayTime + lag) * 1000, self.show)
 
     def run(self):
-        self.mainwindow.mainloop()
+        if(self.gui):
+            self.mainwindow.mainloop()
+            
+    @cherrypy.expose
+    def index(self):
+        if 'count' not in cherrypy.session:
+            cherrypy.session['count'] = 0
+        cherrypy.session['count'] += 1
+        return "Hello World!" + str(cherrypy.session['count'])
+        
 
 if __name__ == '__main__':
-    app = MyApplication()
-    app.run()
+    gui = True
+    web = True
+    
+    app = MoteLightPainting(gui=gui, web=web)
+    
+    if web:
+        thread.start_new_thread (cherrypy.quickstart,(app, '/', "app.conf"))
+        #cherrypy.quickstart(app, '/', "app.conf")
+
+    if gui:
+        #thread.start_new_thread ( app.run , ())
+        app.run()
+    
+        
+    

@@ -1,116 +1,42 @@
-<h1>
-<a id="user-content-mote-light-painting" class="anchor" href="#mote-light-painting" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Mote Light Painting</h1>
-<p>Using pimoroni motes to lightpaint bitmap images.</p>
-<p><a href="demos/Squigy%20Thingy.JPG" target="_blank"><img src="demos/Squigy%20Thingy.JPG" alt="Squigy Thingy" style="max-width:100%;"></a></p>
-<p>Inspired by</p>
-<ul>
-<li>the <a href="http://thepixelstick.com/" rel="nofollow">Pixel Stick</a> which is around $350</li>
-<li>the fact I have a full <a href="https://shop.pimoroni.com/products/mote" rel="nofollow">Mote</a> kit that <a href="https://shop.pimoroni.com/" rel="nofollow">Pimoroni</a> very kindly gave me for my 40th birthday and Motes are "Sticks of Pixels"</li>
-</ul>
-<p><a href="demos/Light%20Arch.jpg" target="_blank"><img src="demos/Light%20Arch.jpg" alt="Light Arch" style="max-width:100%;"></a></p>
-<h2>
-<a id="user-content-requirements" class="anchor" href="#requirements" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Requirements</h2>
-<h3>
-<a id="user-content-software" class="anchor" href="#software" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Software</h3>
-<div class="highlight highlight-source-shell"><pre>sudo aptitude install gphoto2 libgphoto2-dev git python-pip python-tk python-gtk2 sox
-
-sudo pip install webcolors pillow pygubu mote gphoto2
-
-git clone https://github.com/EduMake/mote_light_painting.git
-
-<span class="pl-c1">cd</span> mote_light_painting</pre></div>
-<h3>
-<a id="user-content-hardware" class="anchor" href="#hardware" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Hardware</h3>
-<p>So far being built for :-</p>
-<ul>
-<li>Linux Machines
-<ul>
-<li>Originally planned for Raspberry Pi 3 but I'm running it on my Linux Mint Laptop</li>
-</ul>
-</li>
-<li>Mote <a href="https://shop.pimoroni.com/products/mote" rel="nofollow">https://shop.pimoroni.com/products/mote</a>
-</li>
-<li>Canon EOS 1200D (optional) - Should work with most EOS models and most cameras gphoto2 can control. Nothing clever just triggering shutter release with the settings you have set on the camera.</li>
-</ul>
-<p><a href="demos/Stick.jpg" target="_blank"><img src="demos/Stick.jpg" alt="Stick" style="max-width:100%;"></a>
-<a href="demos/Stick%20Back.jpg" target="_blank"><img src="demos/Stick%20Back.jpg" alt="Stick Back" style="max-width:100%;"></a></p>
-<h3>
-<a id="user-content-other-hardware" class="anchor" href="#other-hardware" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Other Hardware</h3>
-<ul>
-<li>Perspex stick, cut from  <a href="mote_light_painting_stick.svg">this svg file</a>
-</li>
-<li>Screws to attach Mote sticks to the stick</li>
-<li>If using Raspberry Pi - USB Battery Pack</li>
-</ul>
-<p><a href="demos/running.gif" target="_blank"><img src="demos/running.gif" alt="Running" style="max-width:100%;"></a></p>
-<h2>
-<a id="user-content-usage" class="anchor" href="#usage" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Usage</h2>
-<p>If you are going to attach a Camera by USB make sure you have a "LightPaintings" folder in the same folder as the mote_light_painting folder.</p>
-<div class="highlight highlight-source-shell"><pre>sudo ./mote_light_painting.py</pre></div>
-<p><a href="demos/Screenshot.png" target="_blank"><img src="demos/Screenshot.png" alt="Screenshot" style="max-width:100%;"></a></p>
-<ul>
-<li>
-<p>Choose a file (there is a nice default spectrum if you are just testing)</p>
-</li>
-<li>
-<p>"Reload" is useful for resetting to the beginning of an animated GIF</p>
-</li>
-<li>
-<p>A message displays how wide the image should be (in cm)</p>
-</li>
-<li>
-<p>The Graph shows your image as 64 pixels (the height of a full set of motes) over the draw time (so it will usually look stretched, don't worry its a graph)</p>
-</li>
-<li>
-<p>We often end up needing to ignore pure white pixels, if you need them painting check the 'Paint White ?' box.</p>
-</li>
-<li>
-<p>"Colour" lets you choose a single colour to paint with.</p>
-</li>
-<li>
-<p>"End Colour" and the tick box allow you to set a changing colour pattern</p>
-</li>
-<li>
-<p>The "Paint Black as..." takes black and paints it as the current "Colour" lets you paint silhouettes as light</p>
-</li>
-<li>
-<p>The "Tween" will vary the colour painted from "Colour" to "End Colour" over the Repeats.</p>
-</li>
-<li>
-<p>Ticking 'Control Camera' will try to capture a photo from you USB / PTP camera via gphoto2 (there is no error checking here at the mo, so if it freezes start again).</p>
-</li>
-<li>
-<p>"Delay Time" is self explanatory.</p>
-</li>
-<li>
-<p>"Draw Time" is how long it will take for your image to be drawn and will depend on the exposure time you are using.</p>
-</li>
-<li>
-<p>"Repeats" set how many times the Delay/Draw cycle takes place. This should allow for nice light painted / stop motion effects.</p>
-</li>
-<li>
-<p>The "Pixels" slider lets you change the height of your light brush.</p>
-</li>
-<li>
-<p>Orientation controls</p>
-<ul>
-<li>"Paint From Left" - The painting starts on the painters left (this should not effect the orientation of the painted image)</li>
-<li>"Facing" - The if ticked and the screen is facing the painter the graph moves the same way as the painter does</li>
-<li>"Flip" - Reverse the image</li>
-</ul>
-</li>
-<li>
-<p>The "Draw" button :-</p>
-<ul>
-<li>Blanks the Graph</li>
-<li>Waits for any delay, drawing the progress on the Graph (if controlling a camera it adds 3 seconds after sending the camera trigger to give it enough time to start it properly)</li>
-<li>Starts the camera's shot if 'Control Camera' is selected</li>
-<li>Starts changing the lights.</li>
-<li>Move the lights across the field of view of the camera. The Graph will redraw to give you a clue how far along you are.</li>
-<li>If you have an animated gif file selected it will try to load the next frame.</li>
-<li>The Draw process "Repeats" until it should end</li>
-<li>On the last repeat, if 'Control Camera' is selected the image should pop up in a photo viewer</li>
-</ul>
-</li>
-</ul>
-
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Getting started with JSON Form</title>
+    <link rel="stylesheet" style="text/css" href="deps/opt/bootstrap.css" />
+  </head>
+  <body>
+    <h1>Getting started with JSON Form</h1>
+    <form></form>
+    <div id="res" class="alert"></div>
+    <script type="text/javascript" src="deps/jquery.min.js"></script>
+    <script type="text/javascript" src="deps/underscore.js"></script>
+    <script type="text/javascript" src="deps/opt/jsv.js"></script>
+    <script type="text/javascript" src="lib/jsonform.js"></script>
+    <script type="text/javascript">
+      $('form').jsonForm({
+        schema: {
+          name: {
+            type: 'string',
+            title: 'Name',
+            required: true
+          },
+          age: {
+            type: 'number',
+            title: 'Age'
+          }
+        },
+        onSubmit: function (errors, values) {
+          if (errors) {
+            $('#res').html('<p>I beg your pardon?</p>');
+          }
+          else {
+            $('#res').html('<p>Hello ' + values.name + '.' +
+              (values.age ? '<br/>You are ' + values.age + '.' : '') +
+              '</p>');
+          }
+        }
+      });
+    </script>
+  </body>
+</html>

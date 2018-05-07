@@ -292,6 +292,7 @@ class MoteLightPainting(object):
                 self.showMessage("Connection Failed. Simulating")
 
     def updateControls(self):
+      if(self.gui):
         self.builder.tkvariables.__getitem__('bGradient').set(self.bGradient)
         self.builder.tkvariables.__getitem__('bReverseImage').set(self.bReverseImage)
         self.builder.tkvariables.__getitem__('bFacingScreen').set(self.bFacingScreen)
@@ -312,6 +313,7 @@ class MoteLightPainting(object):
         self.scaDelay.set(self.iDelay)
 
     def updateParams(self):
+      if(self.gui):
         self.bGradient = self.builder.tkvariables.__getitem__('bGradient').get()
         self.bReverseImage = self.builder.tkvariables.__getitem__('bReverseImage').get()
         self.bFacingScreen = self.builder.tkvariables.__getitem__('bFacingScreen').get()
@@ -593,18 +595,29 @@ class MoteLightPainting(object):
         cherrypy.session['count'] += 1
         return "Hello World!" + str(cherrypy.session['count'])
         
+    @cherrypy.expose
+    @cherrypy.tools.json_in()
+    @cherrypy.tools.json_out()
+    def settings(self):
+      data = cherrypy.request.json
+      if(data):
+        print("data", data);
+        for field in data:
+          self[field] = data[field]
+        self.updateControls()
+      
+      return dict(self)
+      
 
 if __name__ == '__main__':
-    gui = True
     web = True
-    
+    gui = not(web)
     app = MoteLightPainting(gui=gui, web=web)
     
     if web:
-        thread.start_new_thread (cherrypy.quickstart,(app, '/', "app.conf"))
-        #cherrypy.quickstart(app, '/', "app.conf")
-
-    if gui:
+        #thread.start_new_thread (cherrypy.quickstart,(app, '/', "app.conf"))
+        cherrypy.quickstart(app, '/', "app.conf")
+    else:
         #thread.start_new_thread ( app.run , ())
         app.run()
     

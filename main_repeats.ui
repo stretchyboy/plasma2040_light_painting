@@ -118,7 +118,7 @@
         <property name="label" translatable="yes">Repeats</property>
         <property name="length">150</property>
         <property name="orient">horizontal</property>
-        <property name="to">20</property>
+        <property name="to">25</property>
         <property name="variable">int:iRepeats</property>
         <layout>
           <property name="column">0</property>

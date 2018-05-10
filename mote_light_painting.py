@@ -199,10 +199,11 @@ class MyApplication:
         self.im = Image.open(filename)
         iOriginalWidth, iOriginalHeight = self.im.size
         fAspect = float(iOriginalWidth) / float(iOriginalHeight)
-        targetWidth = int(fAspect * len(self.yToStick) * self.motePixelInCm)
+        #targetWidth = int(fAspect * len(self.yToStick) * self.motePixelInCm)
+        targetWidth = int(fAspect * self.iPixels * self.motePixelInCm)
         message = "Opened \""+os.path.basename(filename) + "\" "+str(targetWidth)+"cm wide"
         self.showMessage(message)
-        self.rgb_im = self.im.convert('RGB').resize((self.timeSlices, len(self.yToStick)), Image.NEAREST)
+        self.rgb_im = self.im.convert('RGB').resize((self.timeSlices, self.iPixels), Image.NEAREST)
         self.width, self.height = self.rgb_im.size
         
         self.aImageValues = [[self.rgb_im.getpixel((x, y)) for x in range(self.width)] for y in range(self.height)]
@@ -375,7 +376,11 @@ class MyApplication:
         iPreviewXend = self.getPreviewX(x+1)
 
         for y in range(0, self.iPixels):
-            colour = self.aPixels[y][x]
+            try :
+                colour = self.aPixels[y][x]
+            except :
+                colour = (0, 0, 0)
+                
             if colour != (0, 0, 0) and (self.bPaintWhite or colour != (255, 255, 255)):
                 color = str(webcolors.rgb_to_hex(colour))
                 self.canPreview.create_rectangle( iPreviewX, (y * self.motePixelInSceenPixels), iPreviewXend, (y * self.motePixelInSceenPixels) + self.motePixelInSceenPixels, width=0, fill=color)
@@ -402,7 +407,7 @@ class MyApplication:
     def makeRandom(self):
         self.aRandomGrid = [[False for x in range(self.width)] for y in range(self.height)]
         
-        for y in range(len(self.yToStick)):
+        for y in range(self.iPixels):
             if(self.bLines):
                 line = [random.randint(0, self.timeSlices), random.randint(0, self.timeSlices)]
                 line.sort()
@@ -442,7 +447,7 @@ class MyApplication:
 
         try:
             self.im.seek(self.im.tell()+1)
-            self.rgb_im = self.im.convert('RGB').resize((self.timeSlices, len(self.yToStick)))
+            self.rgb_im = self.im.convert('RGB').resize((self.timeSlices, self.iPixels))
             self.refreshPixels()
             self.showMessage("Loaded next frame")
             self.drawPreview()
@@ -450,13 +455,13 @@ class MyApplication:
             try:
                 if (self.im.tell() > 0):
                     self.im.seek(0)
-                    self.rgb_im = self.im.convert('RGB').resize((self.timeSlices, len(self.yToStick)))
+                    self.rgb_im = self.im.convert('RGB').resize((self.timeSlices, self.iPixels))
                     self.refreshPixels()
                     print("Animation Looped")
             except:
                 if (self.im.tell() > 0):
                     self.im = Image.open(self.filename)
-                    self.rgb_im = self.im.convert('RGB').resize((self.timeSlices, len(self.yToStick)))
+                    self.rgb_im = self.im.convert('RGB').resize((self.timeSlices, self.iPixels))
                     self.refreshPixels()
                     print("Could not loop - Reloaded")        
 

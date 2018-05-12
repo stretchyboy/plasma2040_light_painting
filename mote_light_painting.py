@@ -257,12 +257,14 @@ class MyApplication:
         if not self.simulate :
             try:
                 for y in range(0, self.iPixels):
-                    if(self.bFlipVertical):
+                    try:
+                      if(self.bFlipVertical):
                         colour = self.aPixels[(self.iPixels-y)-1][x]
-                    else:
+                      else:
                         colour = self.aPixels[y][x]
-                        
-                    channel, pixel= self.yToStick[y]
+                    except:
+                        colour = (0,0,0)
+                    channel, pixel= self.yToStick[y % len(self.yToStick)]
                     if colour != (0, 0, 0) and (self.bPaintWhite or colour != (255, 255, 255)):
                         r,g,b = colour
                         self.mote.set_pixel(channel, pixel, r, g, b)
@@ -332,7 +334,11 @@ class MyApplication:
         return self.color
         
     def transformThroughRandom(self, color, x, y, base=(0,0,0)):
-        fMultiply = self.aRandomGrid[y][x]
+        try:
+            fMultiply = self.aRandomGrid[y][x]
+        except:
+            fMultiply == False
+            
         if(fMultiply == False):
             return (0,0,0)
         else:
@@ -368,6 +374,12 @@ class MyApplication:
         
         if self.bPaintBlack == False :
             self.aPixels = [[self.transformThroughRandom(self.aRawPixels[y][x], x, y) for x in range(self.width)] for y in range(self.height)]
+            
+        if self.bReverseImage == True:
+            try:
+                self.aPixels = [[self.aRawPixels[y][(self.width - x) - 1] for x in range(self.width)] for y in range(self.height)]
+            except:
+                print("failing", len(self.aPixels), self.width , x)
                 
     def drawColumn(self, x):
         iImageX = self.getImageX(x)

@@ -243,7 +243,7 @@ class MyApplication:
         self.drawPreview()
 
     def getImageX(self, processX):
-        direction = (1 if self.bPaintFromLeft else -1) * (-1 if self.bReverseImage else 1)
+        direction = (1 if self.bPaintFromLeft else -1) # * (-1 if self.bReverseImage else 1)
         x = (0 if (direction == 1) else (self.timeSlices-1)) + (direction * processX)
         return x
 
@@ -377,7 +377,7 @@ class MyApplication:
             
         if self.bReverseImage == True:
             try:
-                self.aPixels = [[self.aRawPixels[y][(self.width - x) - 1] for x in range(self.width)] for y in range(self.height)]
+                self.aPixels = [[self.aPixels[y][(self.width - x) - 1] for x in range(self.width)] for y in range(self.height)]
             except:
                 print("failing", len(self.aPixels), self.width , x)
                 

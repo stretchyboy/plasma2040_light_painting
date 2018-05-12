@@ -43,7 +43,6 @@ MODE_RANDOM   = 4
 #gphoto2_command = 'gphoto2 --capture-image --filename "../LightPaintings/%Y%m%d-%H%M%S-%03n.%C"'
 gphoto2_command = '''gphoto2 --set-config capturetarget=1 --keep --capture-image-and-download --filename """../LightPaintings/%Y%m%d-%H%M%S-%03n.%C"""'''
 
-
 class MyApplication:
     def __init__(self):
         #1: Create a builder
@@ -151,14 +150,10 @@ class MyApplication:
     
     def takePhoto2(self):
         self.bCameraBusy = True
-        
         os.system(gphoto2_command)        
-        
         self.bCameraBusy = False
         return 0
         
-    
-    
     def takePhoto(self):
         return self.takePhoto2()
         
@@ -213,12 +208,10 @@ class MyApplication:
         if(self.mode == MODE_IMAGE):
             self.drawPreview()
 
-        
     def onFileChoose(self, event=None):
         self.filename = askopenfilename(initialdir = "images/",title = "Select file",filetypes = (("gif files","*.gif"),("png files","*.png"),("jpeg files","*.jpg"),("all files","*.*")))
         self.mode = MODE_IMAGE
         self.loadImage()
-
 
     def getColor(self, event=None):
         color = askcolor(self.color)
@@ -244,7 +237,7 @@ class MyApplication:
         self.drawPreview()
 
     def getImageX(self, processX):
-        direction = (1 if self.bPaintFromLeft else -1) # * (-1 if self.bReverseImage else 1)
+        direction = (1 if self.bPaintFromLeft else -1)
         x = (0 if (direction == 1) else (self.timeSlices-1)) + (direction * processX)
         return x
 
@@ -260,13 +253,13 @@ class MyApplication:
                 for y in range(0, self.iPixels):
                     try:
                       if(self.bFlipVertical):
-                        colour = self.aPixels[(self.iPixels-y)-1][x]
+                        colour = self.aPixels[(self.iPixels-y)-1][iImageX]
                       else:
-                        colour = self.aPixels[y][x]
+                        colour = self.aPixels[y][iImageX]
                     except:
                         colour = (0,0,0)
                     channel, pixel= self.yToStick[y % len(self.yToStick)]
-                    if colour != (0, 0, 0) and (self.bPaintWhite or colour != (255, 255, 255)):
+                    if colour != (0, 0, 0):
                         r,g,b = colour
                         self.mote.set_pixel(channel, pixel, r, g, b)
                     else:
@@ -349,6 +342,11 @@ class MyApplication:
                 int(round(fMultiply * float(color[2]-base[2])))+base[2]
                 )
                             
+    def dontPaintWhite(self, colour):
+        if colour == (255, 255, 255) :
+            return (0,0,0)
+        return colour
+    
     def makeInvertedPixel(self, color,x,y,):
         if color == (0, 0, 0):
             return self.aColorPixels[y][x]  
@@ -372,10 +370,13 @@ class MyApplication:
                 self.aRawPixels = self.aImageValues
         else: 
             self.aRawPixels = self.aColorPixels
-        
+         
         if self.bPaintBlack == False :
             self.aPixels = [[self.transformThroughRandom(self.aRawPixels[y][x], x, y) for x in range(self.width)] for y in range(self.height)]
             
+        if self.bPaintWhite == False:
+            self.aPixels = [[self.dontPaintWhite(self.aPixels[y][x]) for x in range(self.width)] for y in range(self.height)]
+          
         if self.bReverseImage == True:
             try:
                 self.aPixels = [[self.aPixels[y][(self.width - x) - 1] for x in range(self.width)] for y in range(self.height)]
@@ -389,11 +390,11 @@ class MyApplication:
 
         for y in range(0, self.iPixels):
             try :
-                colour = self.aPixels[y][x]
+                colour = self.aPixels[y][iImageX]
             except :
                 colour = (0, 0, 0)
                 
-            if colour != (0, 0, 0) and (self.bPaintWhite or colour != (255, 255, 255)):
+            if colour != (0, 0, 0):
                 color = str(webcolors.rgb_to_hex(colour))
                 self.canPreview.create_rectangle( iPreviewX, (y * self.motePixelInSceenPixels), iPreviewXend, (y * self.motePixelInSceenPixels) + self.motePixelInSceenPixels, width=0, fill=color)
         if self.bPaintBlack & (self.currentColumn > 0  and self.currentColumn < self.graphWidth):
@@ -408,7 +409,6 @@ class MyApplication:
         self.makePixels()
         self.drawPreview()
         
-          
     def drawPreview(self):
         self.updateParams()
         self.makePixels()
@@ -440,7 +440,6 @@ class MyApplication:
     def refreshPixels(self):
         self.aImageValues = [[self.rgb_im.getpixel((x, y)) for x in range(self.width)] for y in range(self.height)]
         self.makePixels()
-    
     
     def onShowEnd(self):
         if not self.simulate :

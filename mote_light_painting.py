@@ -41,8 +41,8 @@ MODE_COLOR    = 2
 MODE_GRADIENT = 3
 MODE_RANDOM   = 4
 
-gphoto2_command = 'gphoto2 --capture-image --filename "../LightPaintings/%Y%m%d-%H%M%S-%03n.%C"'
-
+#gphoto2_command = 'gphoto2 --capture-image --filename "../LightPaintings/%Y%m%d-%H%M%S-%03n.%C"'
+gphoto2_command = '''gphoto2 --set-config capturetarget=1 --keep --capture-image-and-download --filename """../LightPaintings/%Y%m%d-%H%M%S-%03n.%C"""'''
 
 class MoteLightPainting(object):
     def __init__(self, gui=True, web=True):
@@ -168,14 +168,10 @@ class MoteLightPainting(object):
     
     def takePhoto2(self):
         self.bCameraBusy = True
-        
         os.system(gphoto2_command)        
-        
         self.bCameraBusy = False
         return 0
         
-    
-    
     def takePhoto(self):
         return self.takePhoto2()
         
@@ -216,10 +212,11 @@ class MoteLightPainting(object):
         self.im = Image.open(filename)
         iOriginalWidth, iOriginalHeight = self.im.size
         fAspect = float(iOriginalWidth) / float(iOriginalHeight)
-        targetWidth = int(fAspect * len(self.yToStick) * self.motePixelInCm)
+        #targetWidth = int(fAspect * len(self.yToStick) * self.motePixelInCm)
+        targetWidth = int(fAspect * self.iPixels * self.motePixelInCm)
         message = "Opened \""+os.path.basename(filename) + "\" "+str(targetWidth)+"cm wide"
         self.showMessage(message)
-        self.rgb_im = self.im.convert('RGB').resize((self.timeSlices, len(self.yToStick)), Image.NEAREST)
+        self.rgb_im = self.im.convert('RGB').resize((self.timeSlices, self.iPixels), Image.NEAREST)
         self.width, self.height = self.rgb_im.size
         
         self.aImageValues = [[self.rgb_im.getpixel((x, y)) for x in range(self.width)] for y in range(self.height)]
@@ -229,12 +226,10 @@ class MoteLightPainting(object):
         if(self.mode == MODE_IMAGE):
             self.drawPreview()
 
-        
     def onFileChoose(self, event=None):
         self.filename = askopenfilename(initialdir = "images/",title = "Select file",filetypes = (("gif files","*.gif"),("png files","*.png"),("jpeg files","*.jpg"),("all files","*.*")))
         self.mode = MODE_IMAGE
         self.loadImage()
-
 
     def getColor(self, event=None):
         color = askcolor(self.color)
@@ -260,7 +255,7 @@ class MoteLightPainting(object):
         self.drawPreview()
 
     def getImageX(self, processX):
-        direction = (1 if self.bPaintFromLeft else -1) * (-1 if self.bReverseImage else 1)
+        direction = (1 if self.bPaintFromLeft else -1)
         x = (0 if (direction == 1) else (self.timeSlices-1)) + (direction * processX)
         return x
 
@@ -274,13 +269,15 @@ class MoteLightPainting(object):
         if not self.simulate :
             try:
                 for y in range(0, self.iPixels):
-                    if(self.bFlipVertical):
-                        colour = self.aPixels[(self.iPixels-y)-1][x]
-                    else:
-                        colour = self.aPixels[y][x]
-                        
-                    channel, pixel= self.yToStick[y]
-                    if colour != (0, 0, 0) and (self.bPaintWhite or colour != (255, 255, 255)):
+                    try:
+                      if(self.bFlipVertical):
+                        colour = self.aPixels[(self.iPixels-y)-1][iImageX]
+                      else:
+                        colour = self.aPixels[y][iImageX]
+                    except:
+                        colour = (0,0,0)
+                    channel, pixel= self.yToStick[y % len(self.yToStick)]
+                    if colour != (0, 0, 0):
                         r,g,b = colour
                         self.mote.set_pixel(channel, pixel, r, g, b)
                     else:
@@ -351,7 +348,11 @@ class MoteLightPainting(object):
         return self.color
         
     def transformThroughRandom(self, color, x, y, base=(0,0,0)):
-        fMultiply = self.aRandomGrid[y][x]
+        try:
+            fMultiply = self.aRandomGrid[y][x]
+        except:
+            fMultiply == False
+            
         if(fMultiply == False):
             return (0,0,0)
         else:
@@ -361,6 +362,11 @@ class MoteLightPainting(object):
                 int(round(fMultiply * float(color[2]-base[2])))+base[2]
                 )
                             
+    def dontPaintWhite(self, colour):
+        if colour == (255, 255, 255) :
+            return (0,0,0)
+        return colour
+    
     def makeInvertedPixel(self, color,x,y,):
         if color == (0, 0, 0):
             return self.aColorPixels[y][x]  
@@ -384,9 +390,18 @@ class MoteLightPainting(object):
                 self.aRawPixels = self.aImageValues
         else: 
             self.aRawPixels = self.aColorPixels
-        
+         
         if self.bPaintBlack == False :
             self.aPixels = [[self.transformThroughRandom(self.aRawPixels[y][x], x, y) for x in range(self.width)] for y in range(self.height)]
+            
+        if self.bPaintWhite == False:
+            self.aPixels = [[self.dontPaintWhite(self.aPixels[y][x]) for x in range(self.width)] for y in range(self.height)]
+          
+        if self.bReverseImage == True:
+            try:
+                self.aPixels = [[self.aPixels[y][(self.width - x) - 1] for x in range(self.width)] for y in range(self.height)]
+            except:
+                print("failing", len(self.aPixels), self.width , x)
                 
     def drawColumn(self, x):
         iImageX = self.getImageX(x)
@@ -394,8 +409,12 @@ class MoteLightPainting(object):
         iPreviewXend = self.getPreviewX(x+1)
 
         for y in range(0, self.iPixels):
-            colour = self.aPixels[y][x]
-            if colour != (0, 0, 0) and (self.bPaintWhite or colour != (255, 255, 255)):
+            try :
+                colour = self.aPixels[y][iImageX]
+            except :
+                colour = (0, 0, 0)
+                
+            if colour != (0, 0, 0):
                 color = str(webcolors.rgb_to_hex(colour))
                 self.canPreview.create_rectangle( iPreviewX, (y * self.motePixelInSceenPixels), iPreviewXend, (y * self.motePixelInSceenPixels) + self.motePixelInSceenPixels, width=0, fill=color)
         if self.bPaintBlack & (self.currentColumn > 0  and self.currentColumn < self.graphWidth):
@@ -410,7 +429,6 @@ class MoteLightPainting(object):
         self.makePixels()
         self.drawPreview()
         
-          
     def drawPreview(self):
         self.updateParams()
         self.makePixels()
@@ -421,7 +439,7 @@ class MoteLightPainting(object):
     def makeRandom(self):
         self.aRandomGrid = [[False for x in range(self.width)] for y in range(self.height)]
         
-        for y in range(len(self.yToStick)):
+        for y in range(self.iPixels):
             if(self.bLines):
                 line = [random.randint(0, self.timeSlices), random.randint(0, self.timeSlices)]
                 line.sort()
@@ -443,7 +461,6 @@ class MoteLightPainting(object):
         self.aImageValues = [[self.rgb_im.getpixel((x, y)) for x in range(self.width)] for y in range(self.height)]
         self.makePixels()
     
-    
     def onShowEnd(self):
         if not self.simulate :
             self.mote.clear()
@@ -461,7 +478,7 @@ class MoteLightPainting(object):
 
         try:
             self.im.seek(self.im.tell()+1)
-            self.rgb_im = self.im.convert('RGB').resize((self.timeSlices, len(self.yToStick)))
+            self.rgb_im = self.im.convert('RGB').resize((self.timeSlices, self.iPixels))
             self.refreshPixels()
             self.showMessage("Loaded next frame")
             self.drawPreview()
@@ -469,13 +486,13 @@ class MoteLightPainting(object):
             try:
                 if (self.im.tell() > 0):
                     self.im.seek(0)
-                    self.rgb_im = self.im.convert('RGB').resize((self.timeSlices, len(self.yToStick)))
+                    self.rgb_im = self.im.convert('RGB').resize((self.timeSlices, self.iPixels))
                     self.refreshPixels()
                     print("Animation Looped")
             except:
                 if (self.im.tell() > 0):
                     self.im = Image.open(self.filename)
-                    self.rgb_im = self.im.convert('RGB').resize((self.timeSlices, len(self.yToStick)))
+                    self.rgb_im = self.im.convert('RGB').resize((self.timeSlices, self.iPixels))
                     self.refreshPixels()
                     print("Could not loop - Reloaded")        
 

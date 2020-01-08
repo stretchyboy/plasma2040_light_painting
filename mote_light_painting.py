@@ -1,25 +1,12 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 from __future__ import print_function
 
-import cherrypy
+import os
 
 try:
     import thread
 except:
     from threading import Thread
-
-import os
-
-try:
-    import tkinter as tk
-    import tkinter.ttk as ttk
-except:
-    import Tkinter as tk
-
-import pygubu
-from PIL import Image #PILLOW
-from tkColorChooser import askcolor
-from tkFileDialog import askopenfilename
 
 import webcolors
 import sys
@@ -34,6 +21,11 @@ import sys
 import re
 
 import gphoto2 as gp
+from PIL import Image #PILLOW
+
+import cherrypy
+
+
 CURRENT_DIR = os.path.abspath(os.path.dirname(__file__))
 
 MODE_IMAGE    = 1
@@ -570,6 +562,7 @@ class MoteLightPainting(object):
         self.singleShow()
 
     def drawCountdown(self):
+        print("self.iFullDelay", self.iFullDelay, "self.delayRemaining", self.delayRemaining)
         i = 1 + self.iFullDelay - self.delayRemaining
         width = self.graphWidth
         if self.iFullDelay > 0:
@@ -598,19 +591,30 @@ class MoteLightPainting(object):
         if(self.web):
             self.singleShowWeb()
 
+    def hi(self):
+        print("hi")
+
+
     def singleShowWeb(self):
         if self.simulate:
             self.connectToMote()
 
         self.delay(self.iDelay * 1000, self.startPhoto)
 
+        self.delay(self.iDelay * 1000, self.hi)
+
         self.show()
 
-    def delay(self, iDelayMS, func):
+    def delay(self, iDelayMS, func, *args, **kwargs):
         if(self.gui):
-            self.mainwindow.after(iDelayMS, func)
+            if args:
+                self.mainwindow.after(iDelayMS, func, args)
+            else:
+                self.mainwindow.after(iDelayMS, func)
         else:
-            s.enter(iDelayMS/1000, 1, func,None)
+            print(iDelayMS/1000, 1, func, args, kwargs)
+            s.enter(iDelayMS/1000, 1, func, args, kwargs)
+            s.run()
 
 
 
@@ -621,7 +625,7 @@ class MoteLightPainting(object):
         self.canPreview.create_rectangle(0, 0, self.graphWidth, (len(self.yToStick) * self.motePixelInSceenPixels), fill="#AAA")
         self.countdown_id = self.canPreview.create_text(100, self.graphWidth -100, fill="#F00", text=".....")
 
-        delayTime = self.scaDelay.get()
+        delayTime = self.iDelay#scaDelay.get()
 
         lag = 0
         if self.bControlCamera:
@@ -705,6 +709,23 @@ class MoteLightPainting(object):
 if __name__ == '__main__':
     web = True
     gui = not(web)
+
+    if gui:
+        try:
+            import tkinter as tk
+            import tkinter.ttk as ttk
+            from tkinter.colorchooser import askcolor
+            from tkinter.filedialog import askopenfilename
+
+        except:
+            import Tkinter as tk
+            from tkColorChooser import askcolor
+            from tkFileDialog import askopenfilename
+
+
+        import pygubu
+
+
     app = MoteLightPainting(gui=gui, web=web)
 
     if web:

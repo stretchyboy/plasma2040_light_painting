@@ -1,7 +1,7 @@
 [Desktop Entry]
 Version=1.0
 Type=Application
-Name=Mote Light Painting
+Name=Plasma2040 Light Painting
 Comment=
 Exec=/home/matthew/mote_light_painting/start.sh
 Icon=desktop-effects

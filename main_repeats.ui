@@ -3,12 +3,12 @@
   <object class="tk.Toplevel" id="mainwindow">
     <property name="overrideredirect">False</property>
     <property name="resizable">none</property>
-    <property name="title" translatable="yes">Mote Light Painting</property>
+    <property name="title" translatable="yes">Plasma2040 Light Painting</property>
     <bind add="True" handler="on_btnDraw_clicked" sequence="&lt;Key&gt;" />
     <child>
       <object class="tk.Canvas" id="canPreview">
         <property name="background">#00FF00</property>
-        <property name="height">128</property>
+        <property name="height">144</property>
         <property name="width">320</property>
         <layout>
           <property name="column">0</property>
@@ -60,7 +60,20 @@
         <property name="text" translatable="yes">Draw</property>
         <layout>
           <property name="column">0</property>
-          <property name="columnspan">3</property>
+          <property name="columnspan">2</property>
+          <property name="propagate">True</property>
+          <property name="row">18</property>
+          <property name="sticky">nsew</property>
+        </layout>
+      </object>
+    </child>
+    <child>
+      <object class="tk.Button" id="btnSave">
+        <property name="command">on_btnSave_clicked</property>
+        <property name="text" translatable="yes">Save</property>
+        <layout>
+          <property name="column">2</property>
+          <property name="columnspan">1</property>
           <property name="propagate">True</property>
           <property name="row">18</property>
           <property name="sticky">nsew</property>
@@ -81,21 +94,23 @@
         </layout>
       </object>
     </child>
-    <child>
-      <object class="tk.Checkbutton" id="cheControlCamera">
-        <property name="offvalue">0</property>
-        <property name="onvalue">1</property>
-        <property name="text" translatable="yes">Camera</property>
-        <property name="tristatevalue">0</property>
-        <property name="variable">boolean:bControlCamera</property>
-        <layout>
-          <property name="column">0</property>
-          <property name="propagate">True</property>
-          <property name="row">8</property>
-          <property name="sticky">w</property>
-        </layout>
-      </object>
-    </child>
+    <!--
+      <child>
+        <object class="tk.Checkbutton" id="cheControlCamera">
+          <property name="offvalue">0</property>
+          <property name="onvalue">1</property>
+          <property name="text" translatable="yes">Camera</property>
+          <property name="tristatevalue">0</property>
+          <property name="variable">boolean:bControlCamera</property>
+          <layout>
+            <property name="column">0</property>
+            <property name="propagate">True</property>
+            <property name="row">8</property>
+            <property name="sticky">w</property>
+          </layout>
+        </object>
+      </child>
+    -->
     <child>
       <object class="tk.Checkbutton" id="chePaintWhite">
         <property name="command">drawPreview</property>
@@ -186,7 +201,7 @@
         <property name="from_">1</property>
         <property name="label" translatable="yes">Pixels</property>
         <property name="orient">horizontal</property>
-        <property name="to">64</property>
+        <property name="to">144</property>
         <property name="variable">int:iPixels</property>
         <layout>
           <property name="column">0</property>

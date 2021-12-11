@@ -1,13 +1,13 @@
-# Mote Light Painting
-Using pimoroni motes to lightpaint bitmap images.
+# plasma2040 Light Painting
+Using pimoroni plasma2040 to lightpaint bitmap images.
 
 ![Squigy Thingy](demos/Squigy%20Thingy.JPG)
 
 Inspired by 
 
 * the [Pixel Stick](http://thepixelstick.com/) which is around $350
-* the fact I have a full [Mote](https://shop.pimoroni.com/products/mote) kit that [Pimoroni](https://shop.pimoroni.com/) very kindly gave me for my 40th birthday and Motes are "Sticks of Pixels"
-
+* [Mote Light Painting] https://github.com/EduMake/mote_light_painting 
+  
 ![Light Arch](demos/Light%20Arch.jpg)
 
 ## Requirements
@@ -15,13 +15,13 @@ Inspired by
 ### Software
 
 ```bash
-sudo aptitude install gphoto2 libgphoto2-dev git python-pip python-tk python-gtk2 sox
+sudo aptitude install git python-pip python-tk python-gtk2 sox
 
 sudo pip install webcolors pillow pygubu mote gphoto2
 
-git clone https://github.com/EduMake/mote_light_painting.git
+git clone https://github.com/EduMake/plasma2040_light_painting.git
 
-cd mote_light_painting
+cd plasma2040_light_painting
 ```
 
 ### Hardware
@@ -31,16 +31,14 @@ So far being built for :-
 * Linux Machines
 	* Originally planned for Raspberry Pi 3 but I'm running it on my Linux Mint Laptop
 * Mote https://shop.pimoroni.com/products/mote
-* Canon EOS 1200D (optional) - Should work with most EOS models and most cameras gphoto2 can control. Nothing clever just triggering shutter release with the settings you have set on the camera.
-
+  
 ![Stick](demos/Stick.jpg)
 ![Stick Back](demos/Stick%20Back.jpg)
 
 ### Other Hardware
 
-* Perspex stick, cut from  [this svg file](mote_light_painting_stick.svg)
-* Screws to attach Mote sticks to the stick
-* If using Raspberry Pi - USB Battery Pack
+* 120cm stick to mount https://shop.pimoroni.com/products/flexible-rgb-led-strip-neopixel-ws2812-sk6812-compatible?variant=30260032110675 on
+* If using stand alone - USB Battery Pack
 
 ![Running](demos/running.gif)
 
@@ -63,7 +61,6 @@ sudo ./mote_light_painting.py
 * "End Colour" and the tick box allow you to set a changing colour pattern
 * The "Paint Black as..." takes black and paints it as the current "Colour" lets you paint silhouettes as light
 * The "Tween" will vary the colour painted from "Colour" to "End Colour" over the Repeats.
-* Ticking 'Control Camera' will try to capture a photo from you USB / PTP camera via gphoto2 (there is no error checking here at the mo, so if it freezes start again).
 * "Delay Time" is self explanatory.
 * "Draw Time" is how long it will take for your image to be drawn and will depend on the exposure time you are using.
 * "Repeats" set how many times the Delay/Draw cycle takes place. This should allow for nice light painted / stop motion effects.

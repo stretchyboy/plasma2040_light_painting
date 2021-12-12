@@ -1,63 +1,48 @@
 import time
-from typing import List
+import board
+import digitalio
+import adafruit_rgbled
+import busio
+import neopixel
 
-class MockButton:
-    value = False
-
-class MockLED:
-    color = (0,0,0)
-
-class MockStrip(List):
-    def __init__(self, count):
-        self.extend([(0,0,0) for i in range(count)])
-    
-    def show(self):
-        print (self)
-
-    def fill(self, color):
-        pass
-    
 class StickPlayer():    
-    version     = 1
-    frames      = 1
-    columns     = 1
-    leds        = 144
-    duration    = 5
-    blank1      = 0
-    blank2      = 0
+    version = 1
+    frames = 1
+    columns = 1
+    leds = 144
+    duration = 5
+    blank1 = 0
+    blank2 = 0
         
-    step_time        = 0
-    step_time_seconds   = 0
-    time_slices         = 320
+    step_time = 0
+    step_time_seconds = 0
+    time_slices = 320
 
-    frame_num           = 0
-    current_frame       = [[(0,0,0)]]
-    frame_start_time    = 0
-    column_num          = 0
-
+    frame_num = 0
+    column_num = 0
+    current_col = [(0, 0, 0)]
+    frame_start_time = 0
+    
     NUM_LEDS = 144
-
     BRIGHTNESS = 1
-
     CLEAR = (0, 0, 0)  # clear (or second color)
 
-    RED     = (255, 0, 0)
-    GREEN   = (0, 255, 0)
-    BLUE    = (0, 0, 255)
+    RED = (255, 0, 0)
+    GREEN = (0, 255, 0)
+    BLUE = (0, 0, 255)
 
-    led_strip   = MockStrip(144)
-    button_boot = MockButton()
-    button_a    = MockButton()
-    button_b    = MockButton()
-    led         = MockLED()
+    led_strip = False
+    button_boot = False
+    button_a = False
+    button_b = False
+    led = False
     
-    hardware    = False
+    hardware = False
     
     def __init__(self, hardware=False):
-        self.load_meta_data()
         self.hardware = hardware
-        #print ("self", str(self))
-
+        self.load_meta_data() 
+        
         if(self.hardware):
             self.add_hardware()
         else:
@@ -65,18 +50,11 @@ class StickPlayer():
             self.show_frame()
             exit()
         
-         
     def __str__(self):
         return "f"+str(self.frames)+" c"+str(self.columns)+" l"+str(self.leds)
-
         
     def add_hardware(self):
-        import board
-        import digitalio
-        import adafruit_rgbled
-        import busio
-        import neopixel
-        
+        print("add_hardware")
         self.led_strip = neopixel.NeoPixel(board.DATA, self.NUM_LEDS, brightness=self.BRIGHTNESS, auto_write=False)
 
         self.button_boot = digitalio.DigitalInOut(board.USER_SW)
@@ -95,83 +73,71 @@ class StickPlayer():
 
         self.led_strip.fill(self.CLEAR)
         self.led_strip.show()
-    
-
-    def load_meta_data(self):
+        
         self.led.color = self.BLUE
+    
+    def load_meta_data(self):
+        print("load_meta_data")
         self.frame_num = 0
-        if self.hardware == False:
-            print ("self", str(self))
             
         try:
             # get filename ("/media/meggleton/CIRCUITPY/data.hex")
+            self.file = open("data.hex","rb")
+            self.version    = int.from_bytes(self.file.read(1),"little")    
+            self.frames     = int.from_bytes(self.file.read(1),"little")    
+            self.columns    = int.from_bytes(self.file.read(2),"little")    
+            self.leds       = int.from_bytes(self.file.read(1),"little")    
+            self.duration   = int.from_bytes(self.file.read(1),"little")    
+            self.blank1     = int.from_bytes(self.file.read(1),"little")    
+            self.blank2     = int.from_bytes(self.file.read(1),"little") 
+        
+            print(str(self))
+            
+        except OSError as e:
+            self.led.color = self.RED
+            print(str(e))
 
-            with open("data.hex","rb") as file:    
-                self.version    = int.from_bytes(file.read(1),"little")    
-                self.frames     = int.from_bytes(file.read(1),"little")    
-                self.columns    = int.from_bytes(file.read(2),"little")    
-                self.leds       = int.from_bytes(file.read(1),"little")    
-                self.duration   = int.from_bytes(file.read(1),"little")    
-                self.blank1     = int.from_bytes(file.read(1),"little")    
-                self.blank2     = int.from_bytes(file.read(1),"little") 
-        
-            if self.hardware == False:
-                print ("self", str(self))
-                
-        except OSError as e:
-            self.led.color = self.RED
-        
-                
-    def load_frame(self):
-        self.led.color = self.GREEN
-        frame_data = []
-        try:
-            with open("data.hex","rb") as file:               
-                junk = file.read(8 + (3 * self.frame_num * self.columns * self.leds ))
-                
-                for i in range(self.columns):
-                    frame_data.append([])
-                    for j in range(self.leds):
-                        num = list(file.read(3))
-                        frame_data[i].append(tuple(num))
-            return frame_data
-                        
-        except OSError as e:
-            self.led.color = self.RED
-        
     def show_frame(self):
+        print("show_frame", self.frame_num )
         self.frame_start_time = 1.0 + time.monotonic()
-        self.current_frame = self.load_frame()    
         
         duration = float(self.duration)
         self.step_time = (duration / float(self.time_slices))
         self.step_time_seconds = duration / float(self.time_slices)
         
-        self.show_column()
-
-    def on_frame_end(self):
-        self.led_strip.fill(self.CLEAR)
-        self.led_strip.show()
+        self.load_column()
+        for i in range(self.columns + 1):
+            self.column_num = i
+            while time.monotonic() < (self.frame_start_time + (self.step_time * self.column_num)):
+                time.sleep(0.01)
+            #    pass
+            self.led_strip.show()
+            if self.column_num < self.columns:
+                self.load_column()
+            else:
+                self.led_strip.fill(self.CLEAR)
+            
         self.frame_num += 1
 
-    def show_column(self):
-        while time.monotonic() < (self.frame_start_time + (self.step_time * self.column_num)):
-            time.sleep(0.0001)
-
-        if(self.column_num >= self.columns):    
-            self.on_frame_end()
+    def load_column(self):
+        
+        print("load_column", self.column);
+        col_data = []
+        try:
+            for i in range(self.leds):
+                num = list(self.file.read(3))
+                self.led_strip[i] = tuple(num)#self.current_col[i]
+            return col_data 
+                        
+        except OSError as e:
+            self.led.color = self.RED
+            self.led_strip.fill(self.CLEAR)
+            self.led_strip.show()
             return 
-        
-        for i in range(self.leds):
-            self.led_strip[i] = self.current_frame[self.column_num][i]
 
-        self.led_strip.show()
-        self.column_num += 1
-        self.show_column()
-        
     def button_read(self, button):
         return not button.value
-       
+    
     def main(self):
         while True:
             if self.button_read(self.button_a):
@@ -186,12 +152,5 @@ class StickPlayer():
                 pass
             
 if __name__ == '__main__':
-    player = StickPlayer(hardware=False)
+    player = StickPlayer( hardware=True )
     player.main()
-     
-
-
-        
-            
-            
-    

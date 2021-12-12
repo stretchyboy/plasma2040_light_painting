@@ -1,0 +1,25 @@
+{
+	"folders": [
+		{
+			"path": "."
+		},
+		{
+			"path": "E:\\"
+		}
+	],
+	"settings": {
+		"python.languageServer": "Pylance",
+		"circuitpython.board.version": "7.0.0",
+		"python.linting.pylintEnabled": false,
+		"python.analysis.diagnosticSeverityOverrides": {
+			"reportMissingModuleSource": "none"
+		},
+		"python.analysis.extraPaths": [
+			"c:\\Users\\Student\\.vscode\\extensions\\joedevivo.vscode-circuitpython-0.1.15\\boards\\0x2E8A\\0x1008",
+			"c:\\Users\\Student\\.vscode\\extensions\\joedevivo.vscode-circuitpython-0.1.15\\stubs",
+			"c:\\Users\\Student\\AppData\\Roaming\\Code\\User\\globalStorage\\joedevivo.vscode-circuitpython\\bundle\\20211211\\adafruit-circuitpython-bundle-py-20211211\\lib"
+		],
+		"circuitpython.board.vid": "0x2E8A",
+		"circuitpython.board.pid": "0x1008"
+	}
+}
